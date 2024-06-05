@@ -25,7 +25,7 @@ export class PostServiceImpl implements PostService {
     if (!post) throw new NotFoundException('post')
 
     const authorized = await this.authorizedToSeeAuthorPosts(userId, post.authorId)
-    if (authorized === true) throw new ForbiddenException()
+    if (authorized === true) throw new NotFoundException('post')
 
     return post
   }
@@ -36,7 +36,7 @@ export class PostServiceImpl implements PostService {
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
     const authorized = await this.authorizedToSeeAuthorPosts(userId, authorId)
-    if (authorized === true) throw new ForbiddenException()
+    if (authorized === true) throw new NotFoundException('post')
     return await this.repository.getByAuthorId(authorId)
   }
 
