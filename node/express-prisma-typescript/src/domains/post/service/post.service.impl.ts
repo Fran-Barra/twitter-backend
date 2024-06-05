@@ -21,19 +21,35 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPost (userId: string, postId: string): Promise<PostDTO> {
-    // TODO: validate that the author has public profile or the user follows the author
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
+
+    const authorized = await this.authorizedToSeeAuthorPosts(userId, post.authorId)
+    if (authorized === true) throw new ForbiddenException()
+
     return post
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<PostDTO[]> {
-    // TODO: filter post search to return posts from authors that the user follows
-    return await this.repository.getAllByDatePaginated(options)
+    return await this.repository.getAllPublicAndFollowedUsersPostByDatePaginated(userId, options)
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
-    // TODO: throw exception when the author has a private profile and the user doesn't follow them
+    const authorized = await this.authorizedToSeeAuthorPosts(userId, authorId)
+    if (authorized === true) throw new ForbiddenException()
     return await this.repository.getByAuthorId(authorId)
+  }
+
+  /**
+   * Author must exist and has to be public or user must follow it
+   * @param userId 
+   * @param authorId 
+   * @returns if the user has access to the posts
+   */
+  private async authorizedToSeeAuthorPosts(userId: string, authorId: string) : Promise<Boolean> {
+    const privacy = await this.repository.getUserPrivacyById(authorId)
+    if (privacy === null) throw new NotFoundException('user')
+    if (privacy.private === false) return true
+    return await this.repository.userFollows(userId, authorId)
   }
 }

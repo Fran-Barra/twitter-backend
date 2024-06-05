@@ -8,6 +8,7 @@ import { CreatePostInputDTO, PostDTO } from '../dto'
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
+
   async create (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     const post = await this.db.post.create({
       data: {
@@ -59,5 +60,66 @@ export class PostRepositoryImpl implements PostRepository {
       }
     })
     return posts.map(post => new PostDTO(post))
+  }
+
+  async getUserPrivacyById(userId: string): Promise<{private: Boolean} | null> {
+      return await this.db.user.findUnique({
+        where: {
+          id: userId
+        },
+        select: {
+          private: true
+        }
+      })
+  }
+
+  async userFollows(follower: string, followed: string): Promise<Boolean> {
+    const date = await this.db.follow.findUnique({
+      where: {
+        unique_follower_follow: {
+            followerId: follower,
+            followedId: followed
+        }
+      },
+      select: {
+        deletedAt: true
+      }
+    });
+
+    //relation does not exist
+    if (date === null) return false
+    return date.deletedAt === null
+  }
+
+  async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<PostDTO[]> {
+    const posts = await this.db.post.findMany({
+      where: {
+        OR: [
+          {
+            author: {
+              private: false
+          }},
+          {
+            author: {
+              followers: {
+                some: {followerId: userId}
+              }
+            }
+          }
+        ]
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        },
+        {
+          id: 'asc'
+        }
+      ]
+    })
+    return posts
   }
 }
