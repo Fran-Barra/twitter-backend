@@ -2,4 +2,5 @@
 .envrc
 /dist/
 /.idea/
+/.vscode/
 .env
