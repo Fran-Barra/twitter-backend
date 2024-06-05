@@ -60,4 +60,15 @@ export class PostRepositoryImpl implements PostRepository {
     })
     return posts.map(post => new PostDTO(post))
   }
+
+  async getUserPrivacyById(userId: string): Promise<{private: Boolean} | null> {
+      return await this.db.user.findUnique({
+        where: {
+          id: userId
+        },
+        select: {
+          private: true
+        }
+      })
+  }
 }

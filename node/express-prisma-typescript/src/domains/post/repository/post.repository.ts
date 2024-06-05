@@ -1,5 +1,6 @@
 import { CursorPagination } from '@types'
 import { CreatePostInputDTO, PostDTO } from '../dto'
+import { UserDTO } from '@domains/user/dto'
 
 export interface PostRepository {
   create: (userId: string, data: CreatePostInputDTO) => Promise<PostDTO>
@@ -7,4 +8,6 @@ export interface PostRepository {
   delete: (postId: string) => Promise<void>
   getById: (postId: string) => Promise<PostDTO | null>
   getByAuthorId: (authorId: string) => Promise<PostDTO[]>
+
+  getUserPrivacyById(userId: string) : Promise<{private: Boolean} | null>
 }
