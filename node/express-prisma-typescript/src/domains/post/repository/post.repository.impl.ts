@@ -90,4 +90,36 @@ export class PostRepositoryImpl implements PostRepository {
     if (date === null) return false
     return date.deletedAt === null
   }
+
+  async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<PostDTO[]> {
+    const posts = await this.db.post.findMany({
+      where: {
+        OR: [
+          {
+            author: {
+              private: false
+          }},
+          {
+            author: {
+              followers: {
+                some: {followerId: userId}
+              }
+            }
+          }
+        ]
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        },
+        {
+          id: 'asc'
+        }
+      ]
+    })
+    return posts
+  }
 }
