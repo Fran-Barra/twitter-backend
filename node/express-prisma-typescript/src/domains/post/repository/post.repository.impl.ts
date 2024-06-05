@@ -8,6 +8,7 @@ import { CreatePostInputDTO, PostDTO } from '../dto'
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
+
   async create (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     const post = await this.db.post.create({
       data: {
@@ -70,5 +71,23 @@ export class PostRepositoryImpl implements PostRepository {
           private: true
         }
       })
+  }
+
+  async userFollows(follower: string, followed: string): Promise<Boolean> {
+    const date = await this.db.follow.findUnique({
+      where: {
+        unique_follower_follow: {
+            followerId: follower,
+            followedId: followed
+        }
+      },
+      select: {
+        deletedAt: true
+      }
+    });
+
+    //relation does not exist
+    if (date === null) return false
+    return date.deletedAt === null
   }
 }
