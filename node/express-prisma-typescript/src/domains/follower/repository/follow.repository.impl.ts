@@ -39,8 +39,18 @@ export class FollowRepositoryImpl implements FollowRepository {
         });
     }
     
-    stopFollow(follower: string, followed: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async stopFollow(follower: string, followed: string): Promise<void> {
+        await this.db.follow.update({
+            where: {
+                unique_follower_follow: {
+                    followedId: follower,
+                    followerId: followed
+                }
+            },
+            data: {
+                deletedAt: new Date()
+            }
+        });
     }
 
 }
