@@ -18,3 +18,12 @@ followRouter.post("/follow/:userId", async (req: Request, res: Response) => {
 
     return res.sendStatus(httpStatus.CREATED)
 })
+
+followRouter.post("/unfollow/:userId", async (req: Request, res: Response) => {
+    const { userId: followed } = req.params;
+    const { userId } = res.locals.context;
+
+    await followRepository.stopFollow(userId, followed)
+
+    return res.sendStatus(httpStatus.OK)
+})
