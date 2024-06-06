@@ -13,6 +13,7 @@ export const userRouter = Router()
 // Use dependency injection
 const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db))
 
+//TODO: might be missing post user
 userRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { limit, skip } = req.query as Record<string, string>
