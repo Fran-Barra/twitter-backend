@@ -20,6 +20,6 @@ export const swaggerOptions : Options = {
           },
         ],
       },
-      apis: ["./src/*/*.ts"],
+      apis: ["./src/domains/*/controller/*.controller.ts"],
 }
 
