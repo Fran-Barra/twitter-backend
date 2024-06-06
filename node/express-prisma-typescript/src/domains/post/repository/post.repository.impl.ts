@@ -102,7 +102,10 @@ export class PostRepositoryImpl implements PostRepository {
           {
             author: {
               followers: {
-                some: {followerId: userId}
+                some: {
+                  followerId: userId,
+                  deletedAt: null
+                }
               }
             }
           }
