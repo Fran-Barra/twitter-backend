@@ -20,5 +20,6 @@ export const swaggerOptions : Options = {
           },
         ],
       },
-      apis: ["../../router/index.ts"],
+      apis: ["./src/*/*.ts"],
 }
+
