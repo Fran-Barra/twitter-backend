@@ -31,6 +31,8 @@ export class PostServiceImpl implements PostService {
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<PostDTO[]> {
+    //TODO: what if i ask the follower domain for my followed and filter considering that instead of making a request.
+    //that would leave me with some memory in the server, consider how much memory space does this option takes and other factors.
     return await this.repository.getAllPublicAndFollowedUsersPostByDatePaginated(userId, options)
   }
 
@@ -47,6 +49,9 @@ export class PostServiceImpl implements PostService {
    * @returns if the user has access to the posts
    */
   private async authorizedToSeeAuthorPosts(userId: string, authorId: string) : Promise<Boolean> {
+    //TODO: what happens if I have a service of follower that tells me if I follow a user and what happens
+    //if I also have a user service that tells me if the user is private.
+    //TODO: what if I have a privacy domain with view permits?
     const privacy = await this.repository.getUserPrivacyById(authorId)
     if (privacy === null) throw new NotFoundException('user')
     if (privacy.private === false) return true
