@@ -10,6 +10,24 @@ export const followRouter: Router = Router()
 //dependencies
 const followRepository: FollowRepository = new FollowRepositoryImpl(db)
 
+/**
+ * @swagger
+ * /api/follow/{userId}:
+ *   post:
+ *     tags:
+ *      - follow
+ *     summary: Start following a user
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user to follow
+ *     responses:
+ *       201:
+ *         description: The body contains status JSON
+ */
 followRouter.post("/follow/:userId", async (req: Request, res: Response) => {
     const {userId: followed} = req.params;
     const { userId } = res.locals.context;
@@ -19,6 +37,25 @@ followRouter.post("/follow/:userId", async (req: Request, res: Response) => {
     return res.sendStatus(httpStatus.CREATED)
 })
 
+
+/**
+ * @swagger
+ * /api/unfollow/{userId}:
+ *   post:
+ *     tags:
+ *      - follow
+ *     summary: stop following a user
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The user to unfollow
+ *     responses:
+ *       200:
+ *         description: The body contains status JSON
+ */
 followRouter.post("/unfollow/:userId", async (req: Request, res: Response) => {
     const { userId: followed } = req.params;
     const { userId } = res.locals.context;

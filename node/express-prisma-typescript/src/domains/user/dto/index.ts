@@ -1,3 +1,24 @@
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    UserDTO:
+ *      tags:
+ *        - user
+ *      properties:
+ *        id:
+ *          type: string
+ *          description: the id of the user
+ *        name:
+ *          type: string
+ *          description: the user name
+ *        createdAt:
+ *          type: Date
+ *          description: when the user was created
+ *        private:
+ *          type: boolean
+ *          description: if the user is private
+ */
 export class UserDTO {
   constructor (user: UserDTO) {
     this.id = user.id
