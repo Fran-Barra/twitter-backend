@@ -14,6 +14,25 @@ export const userRouter = Router()
 const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db))
 
 //TODO: might be missing post user
+
+
+/**
+ * @swagger
+ * /api/user/:
+ *  get:
+ *    tags:
+ *      - user
+ *    summary: get the user recommendations
+ *    responses:
+ *      200:
+ *        description: a list of users
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/UserDTO'
+ */
 userRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { limit, skip } = req.query as Record<string, string>
@@ -23,6 +42,22 @@ userRouter.get('/', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(users)
 })
 
+
+/**
+ * @swagger
+ * /api/user/:
+ *  get:
+ *    tags:
+ *      - user
+ *    summary: get the information of the logged user
+ *    responses:
+ *      200:
+ *        description: the user information
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/UserDTO'
+ */
 userRouter.get('/me', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
 
@@ -31,6 +66,30 @@ userRouter.get('/me', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(user)
 })
 
+/**
+ * @swagger
+ * /api/user/{userId}:
+ *  get:
+ *    tags:
+ *      - user
+ *    summary: get the information of the user
+ *    parameters:
+ *      - in: path
+ *        name: userId
+ *        required: true
+ *        description: The ID of the user whose information to be retrieved
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: the user information
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/UserDTO'
+ *      404:
+ *        description: the user with that id was not found
+ */
 userRouter.get('/:userId', async (req: Request, res: Response) => {
   const { userId: otherUserId } = req.params
 
@@ -39,6 +98,18 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(user)
 })
 
+
+/**
+ * @swagger
+ * /api/user/:
+ *  delete:
+ *    tags:
+ *      - user
+ *    summary: delete the user
+ *    responses:
+ *      200:
+ *        description: the user was deleted
+ */
 userRouter.delete('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
 
