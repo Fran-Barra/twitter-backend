@@ -14,6 +14,8 @@ const followRepository: FollowRepository = new FollowRepositoryImpl(db)
  * @swagger
  * /api/follow/{userId}:
  *   post:
+ *     tags:
+ *      - follow
  *     summary: Start following a user
  *     parameters:
  *       - in: path
@@ -40,6 +42,8 @@ followRouter.post("/follow/:userId", async (req: Request, res: Response) => {
  * @swagger
  * /api/unfollow/{userId}:
  *   post:
+ *     tags:
+ *      - follow
  *     summary: stop following a user
  *     parameters:
  *       - in: path
