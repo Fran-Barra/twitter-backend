@@ -1,6 +1,24 @@
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { ExtendedUserDTO } from '@domains/user/dto'
 
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    CreatePostInputDTO:
+ *      tags:
+ *        - post
+ *      properties:
+ *        content:
+ *          type: string
+ *          description: the content of the post
+ *        images:
+ *          type: array
+ *          items:
+ *            type: string
+ *          description: the images of the post. Is optional
+ */
 export class CreatePostInputDTO {
   @IsString()
   @IsNotEmpty()
@@ -12,6 +30,32 @@ export class CreatePostInputDTO {
     images?: string[]
 }
 
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    PostDTO:
+ *      tags:
+ *        - post
+ *      properties:
+ *        id:
+ *          type: string
+ *          description: the id of the post
+ *        authorId:
+ *          type: string
+ *          description: the user id of the author
+ *        content:
+ *          type: string
+ *          description: the content of the post
+ *        images:
+ *          type: array
+ *          items:
+ *            type: string
+ *          description: links for the images
+ *        createdAt:
+ *          type: Date
+ *          description: when the post was created
+ */
 export class PostDTO {
   constructor (post: PostDTO) {
     this.id = post.id
