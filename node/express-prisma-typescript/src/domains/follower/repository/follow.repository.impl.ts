@@ -5,6 +5,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 export class FollowRepositoryImpl implements FollowRepository {
     constructor(private readonly db : PrismaClient) {}
 
+    //TODO: add a service that checkt that is not trying to follow it self
     async startFollow(follower: string, followed: string): Promise<void> {
         try {
         await this.db.follow.create(
