@@ -1,13 +1,14 @@
+import { ReactionType } from "@prisma/client"
 
 export interface ReactionDTO {
-    readonly postId: String
-    readonly userId: String
-    readonly reactionType: number
+    readonly postId: string
+    readonly userId: string
+    readonly reactionType: ReactionType
 }
 
 export interface Reaction {
-    readonly id: String
-    readonly postId: String
-    readonly userId: String
-    readonly reactionType: number
+    readonly id: string
+    readonly postId: string
+    readonly userId: string
+    readonly reactionType: ReactionType
 }
