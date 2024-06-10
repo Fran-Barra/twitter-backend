@@ -81,7 +81,7 @@ model Reaction {
   post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([reactionType, postId, userId])
+  @@unique([reactionType, postId, userId], name: "unique_post_reaction")
 }
 
 enum ReactionType {
