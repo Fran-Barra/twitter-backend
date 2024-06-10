@@ -33,7 +33,15 @@ export class ReactionRepositoryImpl implements ReactionRepository {
         })
     }
 
-    removeReactionToPost(reaction: ReactionDTO): Promise<void> {
-        throw new Error("Method not implemented.");
+    async removeReactionToPost(reaction: ReactionDTO): Promise<void> {
+        await this.db.reaction.update({
+            where: {
+                unique_post_reaction: reaction
+            },
+            data: {
+                deletedAt: new Date()
+            }
+        })
+        return
     }
 }
