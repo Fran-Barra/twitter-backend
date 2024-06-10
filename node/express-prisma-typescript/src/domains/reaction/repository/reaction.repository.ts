@@ -1,6 +1,6 @@
-import { Reaction } from "../dto";
+import { Reaction, ReactionDTO } from "../dto";
 
 export interface ReactionRepository {
-    reactToPost(reaction: Reaction): Reaction
-    removeReactionToPost(reaction: Reaction): Reaction
+    reactToPost(reaction: ReactionDTO): Promise<Reaction>
+    removeReactionToPost(reaction: ReactionDTO): Promise<void>
 }
