@@ -1,8 +1,8 @@
 import { CursorPagination } from '@types'
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostOrCommentInputDTO, PostDTO } from '../dto'
 
 export interface PostRepository {
-  create: (userId: string, data: CreatePostInputDTO) => Promise<PostDTO>
+  create: (userId: string, data: CreatePostOrCommentInputDTO) => Promise<PostDTO>
   
   getAllByDatePaginated: (options: CursorPagination) => Promise<PostDTO[]>
   getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<PostDTO[]>
