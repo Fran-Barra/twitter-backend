@@ -13,6 +13,21 @@ export class PostServiceImpl implements PostService {
     return await this.repository.create(userId, data)
   }
 
+  async createComment(userId: string, postId: string, data: CreatePostInputDTO) : Promise<PostDTO> {
+    const post = await this.repository.getById(postId)
+    if (!post) throw new NotFoundException('post')
+
+    const authorized = await this.authorizedToSeeAuthorPosts(userId, post.authorId)
+    if (authorized === true) throw new NotFoundException('post')
+      
+    return await this.repository.create(userId, {
+      content: data.content,
+      images: data.images,
+      commentedPostId: postId
+    })
+  }
+
+
   async deletePost (userId: string, postId: string): Promise<void> {
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')

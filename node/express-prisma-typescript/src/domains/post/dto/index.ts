@@ -19,7 +19,7 @@ import { ExtendedUserDTO } from '@domains/user/dto'
  *            type: string
  *          description: the images of the post. Is optional
  */
-export class CreatePostInputDTO {
+export class CreatePostInputDTO implements CreatePostOrCommentInputDTO{
   @IsString()
   @IsNotEmpty()
   @MaxLength(240)
@@ -85,4 +85,11 @@ export class ExtendedPostDTO extends PostDTO {
   qtyComments!: number
   qtyLikes!: number
   qtyRetweets!: number
+}
+
+
+export interface CreatePostOrCommentInputDTO {
+  content: string
+  images?: string[]
+  commentedPostId?: string
 }
