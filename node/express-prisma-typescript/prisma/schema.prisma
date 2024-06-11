@@ -58,6 +58,7 @@ model Post {
   authorId String   @db.Uuid // Foreign Key
   content  String   @db.VarChar(240) // Limit the content to 240 characters
   images   String[]
+  commentedPostId String? 
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -65,6 +66,8 @@ model Post {
 
   author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
   Reaction Reaction[]
+  comments Post[] @relation(name: "comments")
+  commentedPost Post?  @relation(fields: [commentedPostId], references: [id], name: "comments")
 }
 
 model Reaction {
