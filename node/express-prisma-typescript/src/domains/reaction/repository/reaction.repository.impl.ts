@@ -70,4 +70,47 @@ export class ReactionRepositoryImpl implements ReactionRepository {
         })
         return posts
     }
+
+    async getPublicAndFollowedUsersPostsLikedByTheLiker(userId: string, likerId: string, options: CursorPagination) : Promise<PostDTO[]> {
+        const posts = await this.db.post.findMany({
+            where: {
+                reactions: {
+                    some: { 
+                        userId: likerId,
+                        reactionType: ReactionType.Like,
+                        post: {
+                            OR: [
+                                {
+                                  author: {private: false}
+                                },
+                                {
+                                  author: {
+                                    followers: {
+                                      some: {
+                                        followerId: userId,
+                                        deletedAt: null
+                                      }
+                                    }
+                                  }
+                                }
+                              ]
+                        }
+                    }
+                }
+            },
+            cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+            skip: options.after ?? options.before ? 1 : undefined,
+            take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+            orderBy: [
+              {
+                createdAt: 'desc'
+              },
+              {
+                id: 'asc'
+              }
+            ]
+        })
+        return posts
+    }
+
 }

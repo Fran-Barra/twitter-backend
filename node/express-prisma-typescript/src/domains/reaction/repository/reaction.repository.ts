@@ -6,4 +6,5 @@ export interface ReactionRepository {
     reactToPost(reaction: ReactionDTO): Promise<Reaction>
     removeReactionToPost(reaction: ReactionDTO): Promise<void>
     getUserRetweets: (authorId: string, options: CursorPagination) => Promise<PostDTO[]>
+    getPublicAndFollowedUsersPostsLikedByTheLiker: (userId: string, likerId: string, options: CursorPagination) => Promise<PostDTO[]>
 }
