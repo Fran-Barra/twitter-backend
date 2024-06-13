@@ -65,7 +65,7 @@ model Post {
   deletedAt DateTime? // Optional value
 
   author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
-  Reaction Reaction[]
+  reactions Reaction[]
   comments Post[] @relation(name: "comments")
   commentedPost Post?  @relation(fields: [commentedPostId], references: [id], name: "comments")
 }
