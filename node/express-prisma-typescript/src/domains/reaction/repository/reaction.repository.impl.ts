@@ -1,13 +1,14 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, ReactionType } from "@prisma/client";
 import { ReactionRepository } from "./reaction.repository";
 import { Reaction, ReactionDTO } from "../dto";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { PostDTO } from "@domains/post/dto";
+import { CursorPagination } from "@types";
 
 export class ReactionRepositoryImpl implements ReactionRepository {
     constructor(
         private readonly db: PrismaClient
     ) {}
-
 
     async reactToPost(reaction: ReactionDTO): Promise<Reaction> {
         try {
@@ -43,5 +44,30 @@ export class ReactionRepositoryImpl implements ReactionRepository {
             }
         })
         return
+    }
+
+    async getUserRetweets(authorId: string, options: CursorPagination): Promise<PostDTO[]>{
+        const posts = await this.db.post.findMany({
+            where: {
+                reactions: {
+                    some: { 
+                        userId: authorId,
+                        reactionType: ReactionType.Retweet
+                    }
+                }
+            },
+            cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+            skip: options.after ?? options.before ? 1 : undefined,
+            take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+            orderBy: [
+              {
+                createdAt: 'desc'
+              },
+              {
+                id: 'asc'
+              }
+            ]
+        })
+        return posts
     }
 }
