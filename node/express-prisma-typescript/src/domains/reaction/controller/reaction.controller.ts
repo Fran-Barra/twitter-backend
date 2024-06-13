@@ -134,7 +134,7 @@ reactionRouter.delete("/:post_id", async (req: Request, res: Response)=>{
  *          type: string
  *    responses:
  *      200:
- *        description: A list of posts of the user, may be empty
+ *        description: A list of posts retweeted by the user, may be empty
  *        content:
  *          application/json:
  *            schema:
@@ -150,5 +150,43 @@ reactionRouter.get("/retweets/by_user/:userId", async (req: Request, res: Respon
     const { limit, before, after } = req.query as Record<string, string>
 
     const retweets = await reactionService.getUserRetweets(userId, author, { limit: Number(limit), before, after });
+    return res.status(httpStatus.OK).json(retweets)
+})
+//TODO: should a user be able to see the retweet if the original owner is private?
+
+/**
+ * @swagger
+ * /api/reaction/likes/by_user/{userId}:
+ *  delete:
+ *    tags:
+ *      - reaction
+ *    summary: get posts liked by the user
+ *    parameters:
+ *      - in: path
+ *        name: userId
+ *        required: true
+ *        description: The ID of the user to get the likes from
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: A list of posts liked by the user, may be empty. Only shows public or followed users posts
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/PostDTO'
+ *      404:
+ *        description: The author is private and user does not follow them or does not exist
+ */
+reactionRouter.get("/likes/by_user/:userId", async (req: Request, res: Response) => {
+    const { userId : author } = req.params;
+    const { userId : userId } = res.locals.context;
+    const { limit, before, after } = req.query as Record<string, string>
+
+    const retweets = await reactionService.getPublicAndFollowedUsersPostsLikedByTheUser(
+        userId, author, { limit: Number(limit), before, after }
+    );
     return res.status(httpStatus.OK).json(retweets)
 })
