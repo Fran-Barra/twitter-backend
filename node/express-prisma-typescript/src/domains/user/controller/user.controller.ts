@@ -7,6 +7,7 @@ import { db } from '@utils'
 
 import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
+import { imageService } from '@domains/image'
 
 export const userRouter = Router()
 
@@ -116,4 +117,29 @@ userRouter.delete('/', async (req: Request, res: Response) => {
   await service.deleteUser(userId)
 
   return res.status(HttpStatus.OK)
+})
+
+
+/**
+ * @swagger
+ * /api/user/profile-picture:
+ *  post:
+ *    tags:
+ *      - user
+ *    summary: get url for user profile picture
+ *    responses:
+ *      200:
+ *        description: the url for the profile picture
+ *        content:
+ *          application/json:
+ *            schema:
+ *              properties:
+ *                post-url: string
+ */
+userRouter.post('/profile-picture', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+
+  const url = await imageService.getSignedUrlForProfilePictureForPut(userId)
+
+  return res.status(HttpStatus.OK).json({"post-url":url})
 })
