@@ -53,3 +53,30 @@ postRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: Requ
 
     return res.status(httpStatus.OK).json(comment)
 })
+
+/**
+ * @swagger
+ * /api/post/comment/{postId}:
+ *  get:
+ *    tags:
+ *      - post
+ *    summary: get the comments of the user
+ *    responses:
+ *      200:
+ *        description: a list of posts, may be empty
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/PostDTO'
+ */
+postRouter.get('/:postId', async (req: Request, res: Response) => {
+    const { userId } = res.locals.context
+    const { postId } = req.params
+    const { limit, before, after } = req.query as Record<string, string>
+
+    const comments = service.getCommentsFromPost(userId, postId, {limit: Number(limit), before, after})
+
+    return res.status(httpStatus.OK).json(comments)
+})
