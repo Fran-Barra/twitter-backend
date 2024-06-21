@@ -6,12 +6,22 @@ import httpStatus from "http-status";
 import { stringToReactionType } from "../dto";
 
 import 'express-async-errors'
+import { ReactionService } from "../service/reaction.service";
+import { ReactionServiceImpl } from "../service/reaction.service.imp";
+import { UserIsPublicOrViewerFollowsUser } from "@domains/auth/service";
+import { UserRepositoryImpl } from "@domains/user/repository";
+import { FollowsUserImpl } from "@domains/follower";
 
 
 
 export const reactionRouter = Router()
 
 const reactionRepository: ReactionRepository = new ReactionRepositoryImpl(db);
+
+const reactionService: ReactionService = new ReactionServiceImpl(
+    reactionRepository, 
+    new UserIsPublicOrViewerFollowsUser(new UserRepositoryImpl(db), new FollowsUserImpl(db))
+)
 
 
 /**
@@ -105,4 +115,78 @@ reactionRouter.delete("/:post_id", async (req: Request, res: Response)=>{
     
     const reaction = await reactionRepository.removeReactionToPost({postId: postId, userId: userId, reactionType: type})
     return res.status(httpStatus.OK).json(reaction)
+})
+
+
+/**
+ * @swagger
+ * /api/reaction/retweets/by_user/{userId}:
+ *  delete:
+ *    tags:
+ *      - reaction
+ *    summary: get retweets of a user
+ *    parameters:
+ *      - in: path
+ *        name: userId
+ *        required: true
+ *        description: The ID of the post to react to
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: A list of posts retweeted by the user, may be empty
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/PostDTO'
+ *      404:
+ *        description: The author is private and user does not follow them or does not exist
+ */
+reactionRouter.get("/retweets/by_user/:userId", async (req: Request, res: Response) => {
+    const { userId : author } = req.params;
+    const { userId : userId } = res.locals.context;
+    const { limit, before, after } = req.query as Record<string, string>
+
+    const retweets = await reactionService.getUserRetweets(userId, author, { limit: Number(limit), before, after });
+    return res.status(httpStatus.OK).json(retweets)
+})
+//TODO: should a user be able to see the retweet if the original owner is private?
+
+/**
+ * @swagger
+ * /api/reaction/likes/by_user/{userId}:
+ *  delete:
+ *    tags:
+ *      - reaction
+ *    summary: get posts liked by the user
+ *    parameters:
+ *      - in: path
+ *        name: userId
+ *        required: true
+ *        description: The ID of the user to get the likes from
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: A list of posts liked by the user, may be empty. Only shows public or followed users posts
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/PostDTO'
+ *      404:
+ *        description: The author is private and user does not follow them or does not exist
+ */
+reactionRouter.get("/likes/by_user/:userId", async (req: Request, res: Response) => {
+    const { userId : author } = req.params;
+    const { userId : userId } = res.locals.context;
+    const { limit, before, after } = req.query as Record<string, string>
+
+    const retweets = await reactionService.getPublicAndFollowedUsersPostsLikedByTheUser(
+        userId, author, { limit: Number(limit), before, after }
+    );
+    return res.status(httpStatus.OK).json(retweets)
 })

@@ -4,9 +4,13 @@ import { PostService } from '.'
 import { validate } from 'class-validator'
 import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
+import { AuthToSeeUserPosts } from '@domains/auth/service'
 
 export class PostServiceImpl implements PostService {
-  constructor (private readonly repository: PostRepository) {}
+  constructor (
+    private readonly repository: PostRepository,
+    private readonly authToSeeUserPost: AuthToSeeUserPosts
+  ) {}
 
   async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
     await validate(data)
@@ -17,7 +21,7 @@ export class PostServiceImpl implements PostService {
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
 
-    const authorized = await this.authorizedToSeeAuthorPosts(userId, post.authorId)
+    const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
     if (authorized === true) throw new NotFoundException('post')
       
     return await this.repository.create(userId, {
@@ -39,10 +43,20 @@ export class PostServiceImpl implements PostService {
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
 
-    const authorized = await this.authorizedToSeeAuthorPosts(userId, post.authorId)
+    const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
     if (authorized === true) throw new NotFoundException('post')
 
     return post
+  }
+
+  async getCommentsFromPost(userId: string, postId: string, options: CursorPagination) : Promise<PostDTO[]> {
+    const post = await this.repository.getById(postId)
+    if (!post) throw new NotFoundException('post')
+
+    const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
+    if (authorized === true) throw new NotFoundException('post')
+
+    return this.repository.getCommentsFromPost(postId, options)
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<PostDTO[]> {
@@ -52,24 +66,8 @@ export class PostServiceImpl implements PostService {
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
-    const authorized = await this.authorizedToSeeAuthorPosts(userId, authorId)
+    const authorized = await this.authToSeeUserPost.authorized(userId, authorId)
     if (authorized === true) throw new NotFoundException('post')
     return await this.repository.getByAuthorId(authorId)
-  }
-
-  /**
-   * Author must exist and has to be public or user must follow it
-   * @param userId 
-   * @param authorId 
-   * @returns if the user has access to the posts
-   */
-  private async authorizedToSeeAuthorPosts(userId: string, authorId: string) : Promise<Boolean> {
-    //TODO: what happens if I have a service of follower that tells me if I follow a user and what happens
-    //if I also have a user service that tells me if the user is private.
-    //TODO: what if I have a privacy domain with view permits?
-    const privacy = await this.repository.getUserPrivacyById(authorId)
-    if (privacy === null) throw new NotFoundException('user')
-    if (privacy.private === false) return true
-    return await this.repository.userFollows(userId, authorId)
   }
 }
