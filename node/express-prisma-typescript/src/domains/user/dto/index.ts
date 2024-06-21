@@ -18,6 +18,9 @@
  *        private:
  *          type: boolean
  *          description: if the user is private
+ *        profilePicture:
+ *          type: string
+ *          description: a link to get the user profile picture
  */
 export class UserDTO {
   constructor (user: UserDTO) {
@@ -25,12 +28,14 @@ export class UserDTO {
     this.name = user.name
     this.createdAt = user.createdAt
     this.private = user.private
+    this.profilePicture = user.profilePicture
   }
 
   id: string
   name: string | null
   createdAt: Date
   private: boolean
+  profilePicture?: string
 }
 
 export class ExtendedUserDTO extends UserDTO {
