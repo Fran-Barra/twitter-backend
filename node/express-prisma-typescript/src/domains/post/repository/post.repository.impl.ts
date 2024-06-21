@@ -98,4 +98,23 @@ export class PostRepositoryImpl implements PostRepository {
     })
     return posts
   }
+
+  getCommentsFromPost(postId: string, options: CursorPagination) : Promise<PostDTO[]> {
+    return this.db.post.findMany({
+      where: {
+        commentedPostId: postId
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        },
+        {
+          id: 'asc'
+        }
+      ]
+    })
+  }
 }
