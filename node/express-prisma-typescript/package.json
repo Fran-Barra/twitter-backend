@@ -13,6 +13,8 @@
     "db:generate": "prisma generate"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/s3-request-presigner": "^3.600.0",
     "@prisma/client": "^4.9.0",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
@@ -37,7 +39,6 @@
     "@types/jsonwebtoken": "^9.0.1",
     "@types/method-override": "^0.0.32",
     "@types/morgan": "^1.9.4",
-    "@types/node": "^18.11.18",
     "@types/signale": "^1.4.4",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.6",

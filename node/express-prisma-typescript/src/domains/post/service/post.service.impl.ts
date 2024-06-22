@@ -1,20 +1,24 @@
 import { CreatePostInputDTO, PostDTO } from '../dto'
 import { PostRepository } from '../repository'
 import { PostService } from '.'
-import { validate } from 'class-validator'
 import { ForbiddenException, NotFoundException } from '@utils'
 import { CursorPagination } from '@types'
+import { ImageService } from '@domains/image'
 import { AuthToSeeUserPosts } from '@domains/auth/service'
 
 export class PostServiceImpl implements PostService {
   constructor (
     private readonly repository: PostRepository,
+    private readonly imageService: ImageService,
     private readonly authToSeeUserPost: AuthToSeeUserPosts
   ) {}
 
   async createPost (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
-    await validate(data)
-    return await this.repository.create(userId, data)
+    const post = await this.repository.create(userId, data)
+    if (data.images === undefined) return post
+
+    post.images = await this.imageService.generateLinksForPostImages(post.id, data.images.length)
+    return await this.repository.create(userId, post)
   }
 
   async createComment(userId: string, postId: string, data: CreatePostInputDTO) : Promise<PostDTO> {
@@ -24,11 +28,15 @@ export class PostServiceImpl implements PostService {
     const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
     if (authorized === true) throw new NotFoundException('post')
       
-    return await this.repository.create(userId, {
-      content: data.content,
-      images: data.images,
-      commentedPostId: postId
-    })
+    const comment = await this.repository.create(userId, {
+        content: data.content,
+        images: data.images,
+        commentedPostId: postId
+      })
+    if (data.images === undefined) return comment
+      
+    comment.images = await this.imageService.generateLinksForPostImages(comment.id, data.images.length)
+    return await this.repository.create(userId, comment)
   }
 
 
