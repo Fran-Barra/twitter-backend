@@ -1,6 +1,6 @@
 import { NotFoundException } from '@utils/errors'
 import { OffsetPagination } from 'types'
-import { UserDTO } from '../dto'
+import { UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from '../repository'
 import { UserService } from './user.service'
 import { ImageService } from '@domains/image'
@@ -11,13 +11,13 @@ export class UserServiceImpl implements UserService {
     private readonly imageService: ImageService
   ) {}
 
-  async getUser (userId: any): Promise<UserDTO> {
+  async getUser (userId: any): Promise<UserViewDTO> {
     const user = await this.repository.getById(userId)
     if (!user) throw new NotFoundException('user')
     return this.setProfilePictureLinkToUserDTO(user)
   }
 
-  async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserDTO[]> {
+  async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserViewDTO[]> {
     // TODO: make this return only users followed by users the original user follows
     return Promise.all(
       (await this.repository.getRecommendedUsersPaginated(options)).map(this.setProfilePictureLinkToUserDTO)
@@ -28,10 +28,9 @@ export class UserServiceImpl implements UserService {
     await this.repository.delete(userId)
   }
 
-  private async setProfilePictureLinkToUserDTO(userDTO: UserDTO) : Promise<UserDTO> {
+  private async setProfilePictureLinkToUserDTO(userDTO: UserViewDTO) : Promise<UserViewDTO> {
     const url = await this.imageService.getSignedUrlForProfilePictureForRead(userDTO.id)
-    const user = new UserDTO(userDTO)
-    user.profilePicture = url
-    return user
+    userDTO.profilePicture = url
+    return userDTO
   }
 }

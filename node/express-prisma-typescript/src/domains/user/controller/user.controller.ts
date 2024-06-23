@@ -32,7 +32,7 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db), ima
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#/components/schemas/UserDTO'
+ *                $ref: '#/components/schemas/UserViewDTO'
  */
 userRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
@@ -57,7 +57,7 @@ userRouter.get('/', async (req: Request, res: Response) => {
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UserDTO'
+ *              $ref: '#/components/schemas/UserViewDTO'
  */
 userRouter.get('/me', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
@@ -87,7 +87,7 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UserDTO'
+ *              $ref: '#/components/schemas/UserViewDTO'
  *      404:
  *        description: the user with that id was not found
  */

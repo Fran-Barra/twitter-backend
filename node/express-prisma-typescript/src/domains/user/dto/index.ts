@@ -18,9 +18,6 @@
  *        private:
  *          type: boolean
  *          description: if the user is private
- *        profilePicture:
- *          type: string
- *          description: a link to get the user profile picture
  */
 export class UserDTO {
   constructor (user: UserDTO) {
@@ -28,14 +25,12 @@ export class UserDTO {
     this.name = user.name
     this.createdAt = user.createdAt
     this.private = user.private
-    this.profilePicture = user.profilePicture
   }
 
   id: string
   name: string | null
   createdAt: Date
   private: boolean
-  profilePicture?: string
 }
 
 export class ExtendedUserDTO extends UserDTO {
@@ -50,16 +45,43 @@ export class ExtendedUserDTO extends UserDTO {
   username!: string
   password!: string
 }
+
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    UserViewDTO:
+ *      tags:
+ *        - user
+ *      properties:
+ *        id:
+ *          type: string
+ *          description: the id of the user
+ *        name:
+ *          type: string
+ *          description: the user name
+ *        username:
+ *          type: string | null
+ *          description: the user name
+ *        private:
+ *          type: boolean
+ *          description: if the user is private
+ *        profilePicture:
+ *          type: string
+ *          description: a link to get the user profile picture
+ */
 export class UserViewDTO {
-  constructor (user: UserViewDTO) {
+  constructor (user: {id: string, name: string | null, username: string, profilePicture?: string}) {
     this.id = user.id
     this.name = user.name
     this.username = user.username
-    this.profilePicture = user.profilePicture
+    if (user.profilePicture === undefined) this.profilePicture = null
+    else this.profilePicture = user.profilePicture
   }
 
   id: string
-  name: string
+  name: string | null
   username: string
   profilePicture: string | null
 }
