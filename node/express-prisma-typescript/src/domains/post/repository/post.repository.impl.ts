@@ -4,19 +4,47 @@ import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
 import { CreatePostOrCommentInputDTO, PostDTO } from '../dto'
+import { authRouter } from '@domains/auth'
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
 
-  async create (userId: string, data: CreatePostOrCommentInputDTO): Promise<PostDTO> {
-    const post = await this.db.post.create({
+  create (userId: string, data: CreatePostOrCommentInputDTO): Promise<PostDTO> {
+    if (data.commentedPostId === undefined) return this.createComment(userId, data)
+    return this.createPost(userId, data)
+  }
+
+  private async createPost(userId: string, data: CreatePostOrCommentInputDTO) : Promise<PostDTO> {
+    return new PostDTO(await this.db.post.create({
       data: {
         authorId: userId,
         ...data
       }
-    })
-    return new PostDTO(post)
+    }))
+  }
+
+  private async createComment(userId: string, data: CreatePostOrCommentInputDTO) : Promise<PostDTO>{
+    if (data.commentedPostId === undefined) throw new Error("method used incorrectly, expecting commentedPostId")
+    
+    const [comment]  = await this.db.$transaction([
+      this.db.post.create({
+        data: {
+          authorId: userId,
+          ...data
+        }
+      }),
+
+      this.db.post.update({
+        where: {id: data.commentedPostId},
+        data: {
+          qtyComments: {
+            increment: 1
+          }
+        }
+      })
+    ])
+    return comment
   }
 
   async getAllByDatePaginated (options: CursorPagination): Promise<PostDTO[]> {
