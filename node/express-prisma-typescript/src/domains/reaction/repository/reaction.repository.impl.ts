@@ -15,7 +15,7 @@ export class ReactionRepositoryImpl implements ReactionRepository {
             where: {unique_post_reaction: reaction}
         })
         if (existingReaction === null) return this.createNewReaction(reaction)
-        if (existingReaction.createdAt !== null) this.reactivateReaction(existingReaction)
+        if (existingReaction.deletedAt !== null) this.reactivateReaction(existingReaction)
         return existingReaction
     }
 
@@ -48,15 +48,24 @@ export class ReactionRepositoryImpl implements ReactionRepository {
     }
 
     async removeReactionToPost(reaction: ReactionDTO): Promise<void> {
-        await this.db.reaction.update({
-            where: {
-                unique_post_reaction: reaction
-            },
-            data: {
-                deletedAt: new Date()
-            }
+        const existingReaction = await this.db.reaction.findUnique({
+            where: {unique_post_reaction: reaction}
         })
-        return
+        if (existingReaction === null || existingReaction.deletedAt !== null) return
+        
+        await this.db.$transaction(async pr => {
+            const promises = []
+            promises.push(pr.reaction.update({where: {unique_post_reaction: reaction}, data: {deletedAt: new Date()}}))
+
+            if (reaction.reactionType == ReactionType.Like) {
+                promises.push(pr.post.update({ where: {id: reaction.postId}, data: {qtyLikes: {decrement: 1}}}))
+            } else if (reaction.reactionType == ReactionType.Retweet) {
+                promises.push(pr.post.update({ where: {id: reaction.postId}, data: {qtyRetweets: {decrement: 1}}}))
+            }
+            //TODO: see possible ways to manage this
+            else throw Error(`encountered unexpected reaction type ${reaction.reactionType}`)
+            return Promise.all(promises)
+        })
     }
 
     async getUserRetweets(authorId: string, options: CursorPagination): Promise<PostDTO[]>{
