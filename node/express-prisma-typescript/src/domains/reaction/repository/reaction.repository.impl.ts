@@ -1,4 +1,4 @@
-import { PrismaClient, ReactionType } from "@prisma/client";
+import { Post, Prisma, PrismaClient, ReactionType } from "@prisma/client";
 import { ReactionRepository } from "./reaction.repository";
 import { Reaction, ReactionDTO } from "../dto";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
@@ -10,28 +10,41 @@ export class ReactionRepositoryImpl implements ReactionRepository {
         private readonly db: PrismaClient
     ) {}
 
-    async reactToPost(reaction: ReactionDTO): Promise<Reaction> {
-        try {
-            return await this.db.reaction.create({data: reaction})
-        } catch(err) {
-            if (err instanceof PrismaClientKnownRequestError) {
-                if (err.message.includes("unique_post_reaction") && err.code === "P2002") 
-                    await this.removeDeletedAt(reaction)
-                else throw err
-            }
-            throw err
-        }
+    async reactToPost(reaction: ReactionDTO) : Promise<Reaction> {
+        const existingReaction = await this.db.reaction.findUnique({
+            where: {unique_post_reaction: reaction}
+        })
+        if (existingReaction === null) return this.createNewReaction(reaction)
+        if (existingReaction.createdAt !== null) this.reactivateReaction(existingReaction)
+        return existingReaction
     }
 
-    async removeDeletedAt(reaction: ReactionDTO): Promise<Reaction> {
-        return await this.db.reaction.update({
-            where: {
-                unique_post_reaction: reaction
-            },
-            data: {
-                deletedAt: null
-            }
+    private async createNewReaction(reaction: ReactionDTO) : Promise<Reaction> {
+        const react = await this.db.$transaction(async pr => {
+            const createdReaction = await pr.reaction.create({data: reaction})
+            await this.IncreaseReactionCounterInPost(createdReaction.postId, createdReaction.reactionType, pr)
+            return createdReaction
         })
+        return react
+    }
+
+    private async reactivateReaction(reaction: Reaction) : Promise<Reaction> {
+        const react = await this.db.$transaction(async pr => {
+            const updatedReaction = await pr.reaction.update({where: {unique_post_reaction: reaction}, data: {deletedAt: null}})
+            await this.IncreaseReactionCounterInPost(updatedReaction.postId, updatedReaction.reactionType, pr)
+            return updatedReaction
+        })
+        return react
+    }
+
+    private async IncreaseReactionCounterInPost(postId: string, type: ReactionType, transaction: Prisma.TransactionClient) : Promise<void> {
+        if (type == ReactionType.Like) {
+            await transaction.post.update({ where: {id: postId}, data: {qtyLikes: {increment: 1}}})
+        } else if (type == ReactionType.Retweet) {
+            await transaction.post.update({ where: {id: postId}, data: {qtyRetweets: {increment: 1}}})
+        }
+        //TODO: see possible ways to manage this
+        else throw Error(`encountered unexpected reaction type ${type}`)
     }
 
     async removeReactionToPost(reaction: ReactionDTO): Promise<void> {
