@@ -69,7 +69,7 @@ postRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: Requ
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#/components/schemas/PostDTO'
+ *                $ref: '#/components/schemas/ExtendedPostDTO'
  */
 postRouter.get('/:postId', async (req: Request, res: Response) => {
     const { userId } = res.locals.context
