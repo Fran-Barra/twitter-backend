@@ -1,4 +1,4 @@
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 import { PostRepository } from '../repository'
 import { PostService } from '.'
 import { ForbiddenException, NotFoundException } from '@utils'
@@ -57,7 +57,7 @@ export class PostServiceImpl implements PostService {
     return post
   }
 
-  async getCommentsFromPost(userId: string, postId: string, options: CursorPagination) : Promise<PostDTO[]> {
+  async getCommentsFromPost(userId: string, postId: string, options: CursorPagination) : Promise<ExtendedPostDTO[]> {
     const post = await this.repository.getById(postId)
     if (!post) throw new NotFoundException('post')
 

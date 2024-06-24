@@ -3,8 +3,7 @@ import { PrismaClient } from '@prisma/client'
 import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
-import { CreatePostOrCommentInputDTO, PostDTO } from '../dto'
-import { authRouter } from '@domains/auth'
+import { CreatePostOrCommentInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
@@ -127,22 +126,21 @@ export class PostRepositoryImpl implements PostRepository {
     return posts
   }
 
-  getCommentsFromPost(postId: string, options: CursorPagination) : Promise<PostDTO[]> {
-    return this.db.post.findMany({
+  async getCommentsFromPost(postId: string, options: CursorPagination) : Promise<ExtendedPostDTO[]> {
+    const result = await this.db.post.findMany({
       where: {
         commentedPostId: postId
       },
+      include: {author: true},
       cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
       skip: options.after ?? options.before ? 1 : undefined,
       take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
-      orderBy: [
-        {
-          createdAt: 'desc'
-        },
-        {
-          id: 'asc'
+      orderBy: {
+        reactions: {
+          _count: 'asc'
         }
-      ]
+      }
     })
+    return result
   }
 }
