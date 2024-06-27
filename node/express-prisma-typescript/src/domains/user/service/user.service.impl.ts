@@ -18,9 +18,8 @@ export class UserServiceImpl implements UserService {
   }
 
   async getUserRecommendations (userId: any, options: OffsetPagination): Promise<UserViewDTO[]> {
-    // TODO: make this return only users followed by users the original user follows
     return Promise.all(
-      (await this.repository.getRecommendedUsersPaginated(options)).map(this.setProfilePictureLinkToUserDTO.bind(this))
+      (await this.repository.getRecommendedUsersPaginated(userId, options)).map(this.setProfilePictureLinkToUserDTO.bind(this))
     )
   }
 
