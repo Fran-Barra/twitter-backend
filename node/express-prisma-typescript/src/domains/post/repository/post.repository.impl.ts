@@ -90,7 +90,7 @@ export class PostRepositoryImpl implements PostRepository {
     return posts.map(post => new PostDTO(post))
   }
 
-  async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<PostDTO[]> {
+  async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const posts = await this.db.post.findMany({
       where: {
         OR: [
@@ -110,6 +110,9 @@ export class PostRepositoryImpl implements PostRepository {
           }
         ],
         commentedPost: null
+      },
+      include: {
+        author: true
       },
       cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
       skip: options.after ?? options.before ? 1 : undefined,

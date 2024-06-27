@@ -26,7 +26,7 @@ export const postRouter = Router()
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#/components/schemas/PostDTO'
+ *                $ref: '#/components/schemas/ExtendedPostDTO'
  */
 postRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
