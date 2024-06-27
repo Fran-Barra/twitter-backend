@@ -17,13 +17,14 @@ const app = express()
 // Set up request logger
 if (Constants.NODE_ENV === NodeEnv.DEV) {
   app.use(morgan('tiny')) // Log requests only in development environments
-  const specs = swaggerJsdoc(swaggerOptions);
-  app.use(
-    "/api-docs",
-    swaggerUi.serve,
-    swaggerUi.setup(specs)
-  )
 }
+
+const specs = swaggerJsdoc(swaggerOptions);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs)
+)
 
 // Set up request parsers
 app.use(express.json()) // Parses application/json payloads request bodies
