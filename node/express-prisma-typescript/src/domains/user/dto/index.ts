@@ -73,10 +73,11 @@ export class ExtendedUserDTO extends UserDTO {
  *          description: a link to get the user profile picture
  */
 export class UserViewDTO {
-  constructor (user: {id: string, name: string | null, username: string, profilePicture?: string}) {
+  constructor (user: {id: string, name: string | null, username: string, private: boolean, profilePicture?: string}) {
     this.id = user.id
     this.name = user.name
     this.username = user.username
+    this.private = user.private
     if (user.profilePicture === undefined) this.profilePicture = null
     else this.profilePicture = user.profilePicture
   }
@@ -85,4 +86,5 @@ export class UserViewDTO {
   name: string | null
   username: string
   profilePicture: string | null
+  private: boolean
 }
