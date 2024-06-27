@@ -98,7 +98,7 @@ export class PostDTO {
  *          type: Date
  *          description: when the post was created
  *        author:
- *          type: '#/components/schemas/ExtendedUserDto
+ *          type: '#/components/schemas/ExtendedUserDTO'
  *        qtyComments:
  *          type: number
  *          description: the amount of comments this post has

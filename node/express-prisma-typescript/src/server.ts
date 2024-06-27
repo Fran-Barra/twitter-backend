@@ -2,12 +2,15 @@ import express from 'express'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import cors from 'cors'
+import { createServer } from 'http'
 
-import { Constants, NodeEnv, Logger, swaggerOptions } from '@utils'
+import { Constants, NodeEnv, Logger, swaggerOptions, withAuth, socketAuth } from '@utils'
 import { router } from '@router'
 import { ErrorHandling } from '@utils/errors'
 import swaggerJsdoc from 'swagger-jsdoc'
 import * as swaggerUi from 'swagger-ui-express'
+import { Server, Socket } from 'socket.io'
+import { onConnectionStarted } from '@domains/chat/service/chat.socket.io.service'
 
 const app = express()
 
@@ -38,7 +41,17 @@ app.use('/api', router)
 
 app.use(ErrorHandling)
 
-app.listen(Constants.PORT, () => {
+
+
+const httpServer = createServer(app)
+//TODO: use specific path
+const io = new Server(httpServer)
+
+io.use(socketAuth)
+io.on("connection", onConnectionStarted)
+
+
+httpServer.listen(Constants.PORT, () => {
   Logger.info(`Server listening on port ${Constants.PORT}`)
 })
 
