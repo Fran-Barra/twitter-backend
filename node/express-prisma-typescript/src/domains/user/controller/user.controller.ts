@@ -8,6 +8,7 @@ import { db } from '@utils'
 import { UserRepositoryImpl } from '../repository'
 import { UserService, UserServiceImpl } from '../service'
 import { imageService } from '@domains/image'
+import followService from '@domains/follower/resource'
 
 export const userRouter = Router()
 
@@ -83,20 +84,28 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  *          type: string
  *    responses:
  *      200:
- *        description: the user information
+ *        description: The user information
  *        content:
  *          application/json:
  *            schema:
- *              $ref: '#/components/schemas/UserViewDTO'
+ *              type: object
+ *              properties:
+ *                userView:
+ *                  $ref: '#/components/schemas/UserViewDTO'
+ *                followsBack:
+ *                  type: boolean
+ *                  description: Indicates if the searched user follows the logged-in user
  *      404:
- *        description: the user with that id was not found
+ *        description: The user with that ID was not found
  */
 userRouter.get('/:userId', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
   const { userId: otherUserId } = req.params
 
   const user = await service.getUser(otherUserId)
+  const followsBack = await followService.userFollows(otherUserId, userId)
 
-  return res.status(HttpStatus.OK).json(user)
+  return res.status(HttpStatus.OK).json({userView: user, followsBack: followsBack})
 })
 
 
