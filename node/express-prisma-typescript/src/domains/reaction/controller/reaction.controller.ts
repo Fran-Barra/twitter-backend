@@ -10,7 +10,7 @@ import { ReactionService } from "../service/reaction.service";
 import { ReactionServiceImpl } from "../service/reaction.service.imp";
 import { UserIsPublicOrViewerFollowsUser } from "@domains/auth/service";
 import { UserRepositoryImpl } from "@domains/user/repository";
-import { FollowsUserImpl } from "@domains/follower";
+import followService from "@domains/follower/resource";
 
 
 
@@ -20,7 +20,7 @@ const reactionRepository: ReactionRepository = new ReactionRepositoryImpl(db);
 
 const reactionService: ReactionService = new ReactionServiceImpl(
     reactionRepository, 
-    new UserIsPublicOrViewerFollowsUser(new UserRepositoryImpl(db), new FollowsUserImpl(db))
+    new UserIsPublicOrViewerFollowsUser(new UserRepositoryImpl(db), followService)
 )
 
 

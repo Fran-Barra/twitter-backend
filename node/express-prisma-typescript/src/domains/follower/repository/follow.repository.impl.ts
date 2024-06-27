@@ -5,7 +5,6 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 export class FollowRepositoryImpl implements FollowRepository {
     constructor(private readonly db : PrismaClient) {}
 
-    //TODO: add a service that checkt that is not trying to follow it self
     async startFollow(follower: string, followed: string): Promise<void> {
         try {
         await this.db.follow.create(
@@ -53,5 +52,41 @@ export class FollowRepositoryImpl implements FollowRepository {
             }
         });
     }
+
+    async userFollows(followerId: string, followedId: string) : Promise<boolean> {
+        const date = await this.db.follow.findUnique({
+            where: {
+              unique_follower_follow: {
+                  followerId: followerId,
+                  followedId: followedId
+              },
+            },
+            select: {
+              deletedAt: true
+            }
+          });
+      
+          //relation does not exist
+          if (date === null) return false
+          return date.deletedAt === null
+    }
+
+    async userFollowsAll(followerId: string, followedIds: string[]) : Promise<boolean> {
+        const follows = await this.db.follow.findMany({
+            where: {
+                followerId: followerId,
+                followedId: {
+                    in: followedIds
+                },
+                deletedAt: null
+            },
+            select: {
+                id: true,
+            }
+        });
+
+        return followedIds.length <= follows.length
+    }
+
 
 }

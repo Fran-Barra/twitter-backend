@@ -1,12 +1,12 @@
 import { UserRepository } from "@domains/user/repository";
 import { AuthToSeeUserPosts } from "./authToSeeUserPosts.service";
 import { NotFoundException } from "@utils";
-import { FollowsUser } from "@domains/follower";
+import { FollowsAndUpdatesService } from "@domains/follower";
 
 export class UserIsPublicOrViewerFollowsUser implements AuthToSeeUserPosts {
     constructor(
         private readonly userRepository: UserRepository,
-        private readonly userFollows: FollowsUser
+        private readonly userFollows: FollowsAndUpdatesService
     ) {}
 
     async authorized(viewerUserId: string, viewedUsedId: string) : Promise<boolean> {
