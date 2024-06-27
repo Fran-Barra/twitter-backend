@@ -34,6 +34,10 @@ model User {
   follows   Follow[]   @relation(name: "follows")
   followers Follow[]   @relation(name: "followers")
   Reaction  Reaction[]
+
+  chats UserOnChat[]
+  ownedChats Chat[] @relation(name: "chat_owner")
+  messages ChatMessage[]
 }
 
 model Follow {
@@ -58,7 +62,7 @@ model Post {
   authorId String   @db.Uuid // Foreign Key
   content  String   @db.VarChar(240) // Limit the content to 240 characters
   images   String[]
-  commentedPostId String? 
+  commentedPostId String? @db.Uuid
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -71,8 +75,8 @@ model Post {
 
   author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
   reactions Reaction[]
-  comments Post[] @relation(name: "comments")
-  commentedPost Post?  @relation(fields: [commentedPostId], references: [id], name: "comments")
+  comments Post[] @relation(name: "post_comments")
+  commentedPost Post?  @relation(fields: [commentedPostId], references: [id], name: "post_comments")
 }
 
 model Reaction {
@@ -95,4 +99,51 @@ model Reaction {
 enum ReactionType {
   Like
   Retweet
+}
+
+
+
+
+
+model Chat {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name String
+  ownerId String @db.Uuid
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Optional value
+
+  owner User @relation(fields: [ownerId], references: [id], name: "chat_owner")
+  participants UserOnChat[]
+  messages ChatMessage[]
+}
+
+model UserOnChat {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @db.Uuid
+  chatId String @db.Uuid
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Optional value
+
+  user User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
+  @@unique([userId, chatId], name: "unique_chat_user")
+}
+
+model ChatMessage {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @db.Uuid
+  chatId String @db.Uuid
+  message String
+
+  createdAt DateTime  @default(now())
+
+  sender User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
 }
