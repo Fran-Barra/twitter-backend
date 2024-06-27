@@ -8,5 +8,5 @@ export interface PostService {
   getPost: (userId: string, postId: string) => Promise<PostDTO>
   getCommentsFromPost: (userId: string, postId: string, options: CursorPagination) => Promise<ExtendedPostDTO[]>
   getLatestPosts: (userId: string, options: { limit?: number, before?: string, after?: string }) => Promise<ExtendedPostDTO[]>
-  getPostsByAuthor: (userId: any, authorId: string) => Promise<PostDTO[]>
+  getPostsByAuthor: (userId: any, authorId: string) => Promise<ExtendedPostDTO[]>
 }

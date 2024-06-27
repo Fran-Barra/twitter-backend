@@ -71,7 +71,7 @@ export class PostServiceImpl implements PostService {
     return await this.repository.getAllPublicAndFollowedUsersPostByDatePaginated(userId, options)
   }
 
-  async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
+  async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
     const authorized = await this.authToSeeUserPost.authorized(userId, authorId)
     if (authorized === true) throw new NotFoundException('post')
     return await this.repository.getByAuthorId(authorId)

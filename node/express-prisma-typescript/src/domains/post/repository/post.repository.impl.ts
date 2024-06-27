@@ -80,14 +80,16 @@ export class PostRepositoryImpl implements PostRepository {
     return (post != null) ? new PostDTO(post) : null
   }
 
-  async getByAuthorId (authorId: string): Promise<PostDTO[]> {
-    const posts = await this.db.post.findMany({
+  getByAuthorId (authorId: string): Promise<ExtendedPostDTO[]> {
+    return this.db.post.findMany({
       where: {
         authorId,
         commentedPost: null
+      },
+      include: {
+        author: true
       }
     })
-    return posts.map(post => new PostDTO(post))
   }
 
   async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {

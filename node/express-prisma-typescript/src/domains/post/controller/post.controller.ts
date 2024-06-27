@@ -84,7 +84,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#/components/schemas/PostDTO'
+ *                $ref: '#/components/schemas/ExtendedPostDTO'
  *      404:
  *        description: The author is private and user does not follow them or does not exist
  */
