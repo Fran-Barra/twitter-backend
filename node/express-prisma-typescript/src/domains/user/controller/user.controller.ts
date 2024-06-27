@@ -143,3 +143,37 @@ userRouter.post('/profile-picture', async (req: Request, res: Response) => {
 
   return res.status(HttpStatus.OK).json({"post-url":url})
 })
+
+
+/**
+ * @swagger
+ * /api/user/by_username/{username}:
+ *  get:
+ *    tags:
+ *      - user
+ *    summary: get a list of users with matching name
+ *    parameters:
+ *      - in: path
+ *        name: username
+ *        required: true
+ *        description: a name or part of a username
+ *        schema:
+ *          type: string
+ *    responses:
+ *      200:
+ *        description: a list of users, may be empty
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: array
+ *              items:
+ *                $ref: '#/components/schemas/UserViewDTO'
+ */
+userRouter.get('/by_username/:username', async (req: Request, res: Response) => {
+  const { username } = req.params
+  const { limit, before, after } = req.query as Record<string, string>
+
+  const users = await service.getUsersByName(username, {limit: Number(limit), before: before, after: after})
+
+  return res.status(HttpStatus.OK).json(users)
+})
