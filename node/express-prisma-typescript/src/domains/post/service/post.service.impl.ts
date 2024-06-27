@@ -67,13 +67,11 @@ export class PostServiceImpl implements PostService {
     return this.repository.getCommentsFromPost(postId, options)
   }
 
-  async getLatestPosts (userId: string, options: CursorPagination): Promise<PostDTO[]> {
-    //TODO: what if i ask the follower domain for my followed and filter considering that instead of making a request.
-    //that would leave me with some memory in the server, consider how much memory space does this option takes and other factors.
+  async getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     return await this.repository.getAllPublicAndFollowedUsersPostByDatePaginated(userId, options)
   }
 
-  async getPostsByAuthor (userId: any, authorId: string): Promise<PostDTO[]> {
+  async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
     const authorized = await this.authToSeeUserPost.authorized(userId, authorId)
     if (authorized === true) throw new NotFoundException('post')
     return await this.repository.getByAuthorId(authorId)

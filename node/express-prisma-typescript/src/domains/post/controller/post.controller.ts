@@ -26,7 +26,7 @@ export const postRouter = Router()
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#/components/schemas/PostDTO'
+ *                $ref: '#/components/schemas/ExtendedPostDTO'
  */
 postRouter.get('/', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
@@ -84,7 +84,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  *            schema:
  *              type: array
  *              items:
- *                $ref: '#/components/schemas/PostDTO'
+ *                $ref: '#/components/schemas/ExtendedPostDTO'
  *      404:
  *        description: The author is private and user does not follow them or does not exist
  */
