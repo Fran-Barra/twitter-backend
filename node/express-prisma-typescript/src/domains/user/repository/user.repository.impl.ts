@@ -1,6 +1,6 @@
 import { SignupInputDTO } from '@domains/auth/dto'
 import { PrismaClient } from '@prisma/client'
-import { OffsetPagination } from '@types'
+import { CursorPagination, OffsetPagination } from '@types'
 import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from './user.repository'
 
@@ -57,5 +57,23 @@ export class UserRepositoryImpl implements UserRepository {
       }
     })
     return user ? new ExtendedUserDTO(user) : null
+  }
+
+  async getUsersByUsername(username: string, options: CursorPagination): Promise<UserViewDTO[]> {
+    const users = await this.db.user.findMany({
+      where: {
+        username: {
+          contains: username,
+          mode: 'insensitive'
+        }
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: {
+        username: "desc"
+      }
+    })    
+    return users.map(user => new UserViewDTO(user))
   }
 }
