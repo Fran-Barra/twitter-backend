@@ -3,13 +3,14 @@ import HttpStatus from 'http-status'
 //TODO: express-async-errors is a module that handles async errors in express, don't forget import it in your new controllers
 import 'express-async-errors'
 
-import { db, BodyValidation } from '@utils'
+import { BodyValidation } from '@utils'
 
 import { CreatePostInputDTO } from '../dto'
 import { service } from '../resources'
+import { commentRouter } from './comment.controller'
 
 export const postRouter = Router()
-
+postRouter.use("/comment", commentRouter)
 
 /**
  * @swagger
@@ -47,15 +48,23 @@ postRouter.get('/', async (req: Request, res: Response) => {
  *      - bearerAuth: []
  *    tags:
  *      - post
- *    summary: get an specific post
+ *    summary: Get a specific post
+ *    parameters:
+ *      - name: postId
+ *        in: path
+ *        required: true
+ *        schema:
+ *          type: string
+ *        description: ID of the post to retrieve
  *    responses:
- *      200:
- *        description: the post that was asked for
+ *      '200':
+ *        description: The post that was requested
  *        content:
- *          type:
- *            '#/components/schemas/PostDTO'
- *      404:
- *        description: the post was not found or the author is private and user does not follow it
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/PostDTO'
+ *      '404':
+ *        description: The post was not found or the author is private and the user does not follow them
  */
 postRouter.get('/:postId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context

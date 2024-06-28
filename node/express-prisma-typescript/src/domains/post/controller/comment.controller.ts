@@ -1,5 +1,4 @@
 import { Request, Response, Router } from "express";
-import { postRouter } from "./post.controller";
 import { BodyValidation } from "@utils/validation";
 import { CreatePostInputDTO } from "../dto";
 import { service } from '../resources'
@@ -7,8 +6,7 @@ import httpStatus from "http-status";
 import 'express-async-errors'
 
 
-const commentRouter = Router()
-postRouter.use('/comment', commentRouter)
+export const commentRouter = Router()
 
 
 /**
@@ -46,12 +44,12 @@ postRouter.use('/comment', commentRouter)
  *      404:
  *        description: The author is private and user does not follow them or does not exist
  */
-postRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
+commentRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: Request, res: Response) => {
     const { userId } = res.locals.context
     const { postId } = req.params
     const data = req.body
 
-    const comment = service.createComment(userId, postId, data)
+    const comment = await service.createComment(userId, postId, data)
 
     return res.status(httpStatus.OK).json(comment)
 })
@@ -75,12 +73,12 @@ postRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: Requ
  *              items:
  *                $ref: '#/components/schemas/ExtendedPostDTO'
  */
-postRouter.get('/:postId', async (req: Request, res: Response) => {
+commentRouter.get('/:postId', async (req: Request, res: Response) => {
     const { userId } = res.locals.context
     const { postId } = req.params
     const { limit, before, after } = req.query as Record<string, string>
 
-    const comments = service.getCommentsFromPost(userId, postId, {limit: Number(limit), before, after})
+    const comments = await service.getCommentsFromPost(userId, postId, {limit: Number(limit), before, after})
 
     return res.status(httpStatus.OK).json(comments)
 })
