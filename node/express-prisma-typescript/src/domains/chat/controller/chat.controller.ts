@@ -11,6 +11,8 @@ export const chatRouter = Router()
  * @swagger
  * /api/chat/:
  *  post:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - chat
  *    summary: create a new chat
@@ -44,6 +46,8 @@ chatRouter.post('/', BodyValidation(CreateChatDTO), async (req: Request, res: Re
  * @swagger
  * /api/chat/:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - chat
  *    summary: return the chats where the user is owner or participant
@@ -68,6 +72,8 @@ chatRouter.get('/', async (req: Request, res: Response) => {
  * @swagger
  * /api/chat/participants/{chatId}:
  *  post:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - chat
  *    summary: add a participant to the chat
@@ -107,6 +113,8 @@ chatRouter.post('/participants/:chatId', BodyValidation(ParticipantDTO), async (
  * @swagger
  * /api/chat/participants/{chatId}:
  *  delete:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - chat
  *    summary: remove a participant of the chat
@@ -144,6 +152,8 @@ chatRouter.delete('/participants/:chatId', BodyValidation(ParticipantDTO), async
  * @swagger
  * /api/chat/{chatId}:
  *  delete:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - chat
  *    summary: delete a specific chat

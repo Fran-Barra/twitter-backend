@@ -19,10 +19,21 @@ export const swaggerOptions : Options = {
             url: `http://localhost:${Constants.PORT}`,
           },
         ],
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'bearer',
+              bearerFormat: 'JWT',
+              description: 'Enter JWT token in the format: Bearer <token>'
+            }
+          }
+        }
       },
       apis: [
         "./src/domains/*/controller/*.controller.ts",
-        "./src/domains/*/dto/*.ts"
+        "./src/domains/*/dto/*.ts",
+        ".src/domains/auth/swagger.ts"
       ],
 }
 

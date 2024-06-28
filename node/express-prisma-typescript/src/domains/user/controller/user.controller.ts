@@ -22,6 +22,8 @@ const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db), ima
  * @swagger
  * /api/user/:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - user
  *    summary: get the user recommendations
@@ -47,8 +49,10 @@ userRouter.get('/', async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/user/:
+ * /api/user/me:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - user
  *    summary: get the information of the logged user
@@ -72,6 +76,8 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  * @swagger
  * /api/user/{userId}:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - user
  *    summary: get the information of the user
@@ -113,6 +119,8 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
  * @swagger
  * /api/user/:
  *  delete:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - user
  *    summary: delete the user
@@ -133,6 +141,8 @@ userRouter.delete('/', async (req: Request, res: Response) => {
  * @swagger
  * /api/user/profile-picture:
  *  post:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - user
  *    summary: get url for user profile picture
@@ -158,6 +168,8 @@ userRouter.post('/profile-picture', async (req: Request, res: Response) => {
  * @swagger
  * /api/user/by_username/{username}:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - user
  *    summary: get a list of users with matching name
