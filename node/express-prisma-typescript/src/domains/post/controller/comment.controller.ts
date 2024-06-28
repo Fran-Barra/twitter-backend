@@ -64,7 +64,7 @@ postRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: Requ
  *      - bearerAuth: []
  *    tags:
  *      - post
- *    summary: get the comments of the user
+ *    summary: get the comments from post
  *    responses:
  *      200:
  *        description: a list of posts, may be empty
