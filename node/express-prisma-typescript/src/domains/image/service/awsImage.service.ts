@@ -27,6 +27,7 @@ export class AWSImageService implements ImageService {
         return await getSignedUrl(this.client, command, {expiresIn: 120})
     }
 
+    //TODO: manage no profile picture
     async getSignedUrlForProfilePictureForRead(userId: string): Promise<string> {
         const command = new GetObjectCommand({
             Bucket: Constants.S3_BUCKET_NAME,

@@ -53,6 +53,7 @@ const reactionService: ReactionService = new ReactionServiceImpl(
  *                  reactionType:
  *                      type: ReactionType
  *                      description: like, retweet
+ *                      example: like
  *    responses:
  *      200:
  *        description: The created post
@@ -70,7 +71,7 @@ reactionRouter.post("/:post_id", async (req: Request, res: Response)=>{
     const reactionType = stringToReactionType(type);
     if (reactionType === undefined) throw new ValidationException([{error: "reactionType must be one of the followings: like,0,retweet,1"}])
     
-    const reaction = await reactionRepository.reactToPost({postId: postId, userId: userId, reactionType: type})
+    const reaction = await reactionRepository.reactToPost({postId: postId, userId: userId, reactionType: reactionType})
     return res.status(httpStatus.CREATED).json(reaction)
 })
 
@@ -117,7 +118,7 @@ reactionRouter.delete("/:post_id", async (req: Request, res: Response)=>{
     const reactionType = stringToReactionType(type);
     if (reactionType === undefined) throw new ValidationException([{error: "reactionType must be one of the followings: like,0,retweet,1"}])
     
-    const reaction = await reactionRepository.removeReactionToPost({postId: postId, userId: userId, reactionType: type})
+    const reaction = await reactionRepository.removeReactionToPost({postId: postId, userId: userId, reactionType: reactionType})
     return res.status(httpStatus.OK).json(reaction)
 })
 
