@@ -4,6 +4,7 @@ import { Reaction, ReactionDTO } from "../dto";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { PostDTO } from "@domains/post/dto";
 import { CursorPagination } from "@types";
+import { ValidationException } from "@utils";
 
 export class ReactionRepositoryImpl implements ReactionRepository {
     constructor(
@@ -43,8 +44,7 @@ export class ReactionRepositoryImpl implements ReactionRepository {
         } else if (type == ReactionType.Retweet) {
             await transaction.post.update({ where: {id: postId}, data: {qtyRetweets: {increment: 1}}})
         }
-        //TODO: see possible ways to manage this
-        else throw Error(`encountered unexpected reaction type ${type}`)
+        else throw new ValidationException([new String(`encountered unexpected reaction type ${type}`)])
     }
 
     async removeReactionToPost(reaction: ReactionDTO): Promise<void> {
