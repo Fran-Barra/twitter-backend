@@ -15,7 +15,6 @@ export const userRouter = Router()
 // Use dependency injection
 const service: UserService = new UserServiceImpl(new UserRepositoryImpl(db), imageService)
 
-//TODO: might be missing post user
 
 
 /**
