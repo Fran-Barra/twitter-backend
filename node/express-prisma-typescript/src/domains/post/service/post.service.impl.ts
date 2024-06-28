@@ -26,7 +26,7 @@ export class PostServiceImpl implements PostService {
     if (!post) throw new NotFoundException('post')
 
     const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
-    if (authorized === true) throw new NotFoundException('post')
+    if (authorized !== true) throw new NotFoundException('post')
       
     const comment = await this.repository.create(userId, {
         content: data.content,
@@ -52,7 +52,7 @@ export class PostServiceImpl implements PostService {
     if (!post) throw new NotFoundException('post')
 
     const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
-    if (authorized === true) throw new NotFoundException('post')
+    if (authorized !== true) throw new NotFoundException('post')
 
     return post
   }
@@ -62,7 +62,7 @@ export class PostServiceImpl implements PostService {
     if (!post) throw new NotFoundException('post')
 
     const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
-    if (authorized === true) throw new NotFoundException('post')
+    if (authorized !== true) throw new NotFoundException('post')
 
     return this.repository.getCommentsFromPost(postId, options)
   }
@@ -73,7 +73,7 @@ export class PostServiceImpl implements PostService {
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
     const authorized = await this.authToSeeUserPost.authorized(userId, authorId)
-    if (authorized === true) throw new NotFoundException('post')
+    if (authorized !== true) throw new NotFoundException('post')
     return await this.repository.getByAuthorId(authorId)
   }
 }
