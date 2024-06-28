@@ -9,9 +9,9 @@ export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
 
-  create (userId: string, data: CreatePostOrCommentInputDTO): Promise<PostDTO> {
-    if (data.commentedPostId === undefined) return this.createComment(userId, data)
-    return this.createPost(userId, data)
+  create (userId: string, data: CreatePostOrCommentInputDTO): Promise<PostDTO> {    
+    if (data.commentedPostId === undefined) return this.createPost(userId, data)
+    return this.createComment(userId, data)
   }
 
   private async createPost(userId: string, data: CreatePostOrCommentInputDTO) : Promise<PostDTO> {
