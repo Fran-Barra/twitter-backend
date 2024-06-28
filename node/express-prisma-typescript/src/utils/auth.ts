@@ -50,5 +50,6 @@ export const socketAuth = (socket: Socket, next: () => void) : void => {
     })
   } catch (err) {
     ErrorHandlingSocket(err, socket)
+    socket.disconnect()
   }
 }
