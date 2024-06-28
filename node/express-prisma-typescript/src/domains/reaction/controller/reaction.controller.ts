@@ -125,7 +125,7 @@ reactionRouter.delete("/:post_id", async (req: Request, res: Response)=>{
 /**
  * @swagger
  * /api/reaction/retweets/by_user/{userId}:
- *  delete:
+ *  get:
  *    security:
  *      - bearerAuth: []
  *    tags:
@@ -163,7 +163,7 @@ reactionRouter.get("/retweets/by_user/:userId", async (req: Request, res: Respon
 /**
  * @swagger
  * /api/reaction/likes/by_user/{userId}:
- *  delete:
+ *  get:
  *    security:
  *      - bearerAuth: []
  *    tags:
