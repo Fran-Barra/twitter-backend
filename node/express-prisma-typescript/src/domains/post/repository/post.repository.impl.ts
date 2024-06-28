@@ -26,15 +26,15 @@ export class PostRepositoryImpl implements PostRepository {
   private async createComment(userId: string, data: CreatePostOrCommentInputDTO) : Promise<PostDTO>{
     if (data.commentedPostId === undefined) throw new Error("method used incorrectly, expecting commentedPostId")
     
-    const [comment]  = await this.db.$transaction([
-      this.db.post.create({
+    const comment = await this.db.$transaction(async pr => {
+      const commentPromise = pr.post.create({
         data: {
           authorId: userId,
           ...data
         }
-      }),
+      })
 
-      this.db.post.update({
+      await pr.post.update({
         where: {id: data.commentedPostId},
         data: {
           qtyComments: {
@@ -42,8 +42,9 @@ export class PostRepositoryImpl implements PostRepository {
           }
         }
       })
-    ])
-    return comment
+      return await commentPromise
+    })    
+    return new PostDTO(comment)
   }
 
   async getAllByDatePaginated (options: CursorPagination): Promise<PostDTO[]> {

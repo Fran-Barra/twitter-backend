@@ -10,13 +10,14 @@ export class UserIsPublicOrViewerFollowsUser implements AuthToSeeUserPosts {
     ) {}
 
     async authorized(viewerUserId: string, viewedUsedId: string) : Promise<boolean> {
-        if (await this.userIsPublic(viewedUsedId)) return true
+        const isPublic = await this.userIsPublic(viewedUsedId)
+        if (isPublic) return true
         return await this.userFollows.userFollows(viewerUserId, viewedUsedId)
     }
 
     private async userIsPublic(userId: string) : Promise<boolean> {
         const user = await this.userRepository.getById(userId);
-        if (user === null) throw new NotFoundException('user')
-        return user.private
+        if (!user) throw new NotFoundException('user')
+        return !user.private
     }   
 }

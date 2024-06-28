@@ -11,7 +11,7 @@ const followS : FollowService = followService
 
 /**
  * @swagger
- * /api/follow/{userId}:
+ * /api/follower/follow/{userId}:
  *   post:
  *     security:
  *      - bearerAuth: []
@@ -41,7 +41,7 @@ followRouter.post("/follow/:userId", async (req: Request, res: Response) => {
 
 /**
  * @swagger
- * /api/unfollow/{userId}:
+ * /api/follower/unfollow/{userId}:
  *   post:
  *     security:
  *      - bearerAuth: []

@@ -76,6 +76,7 @@ export class ChatServiceImpl implements ChatService, OnStoppedFollowingObserver{
     }
 
     async onStoppedFollowingAction(followerId: string, followedId: string) : Promise<void> {
+        //TODO: what happens if owner?
         await this.chatRepository.quitFromShearedChats(followerId, followedId)   
     }
 }
