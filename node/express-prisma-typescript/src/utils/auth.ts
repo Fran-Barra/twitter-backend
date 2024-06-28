@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { Request, Response } from 'express'
 import { Constants } from '@utils'
-import { UnauthorizedException } from '@utils/errors'
+import { ErrorHandlingSocket, UnauthorizedException } from '@utils/errors'
 import { Socket } from 'socket.io'
 
 export const generateAccessToken = (payload: Record<string, string | boolean | number>): string => {
@@ -34,8 +34,8 @@ export const checkPassword = async (password: string, hash: string): Promise<boo
   return await bcrypt.compare(password, hash)
 }
 
-//TODO: manage error
 export const socketAuth = (socket: Socket, next: () => void) : void => {
+  try {
     // Get the token from the authorization header    
     const [bearer, token] = (socket.handshake.headers.authorization)?.split(' ') ?? []
 
@@ -48,4 +48,7 @@ export const socketAuth = (socket: Socket, next: () => void) : void => {
       socket.data.context = context
       next()
     })
+  } catch (err) {
+    ErrorHandlingSocket(err, socket)
+  }
 }
