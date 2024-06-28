@@ -52,7 +52,7 @@ authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, 
  *  post:
  *    tags:
  *      - auth
- *    summary: log in with user credentials
+ *    summary: Log in with user credentials
  *    requestBody:
  *      description: The information of the user to log in
  *      required: true
@@ -62,11 +62,17 @@ authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, 
  *            $ref: '#/components/schemas/LoginInputDTO'
  *    responses:
  *      200:
- *        description: The user logged successfully
+ *        description: The user logged in successfully
  *        content:
- *          type: string
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *                  description: The JWT token
  *      401:
- *        description: password or mail were wrong
+ *        description: Password or email were wrong
  */
 authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, res: Response) => {
   const data = req.body
