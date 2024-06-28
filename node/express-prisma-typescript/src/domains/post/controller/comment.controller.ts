@@ -15,6 +15,8 @@ postRouter.use('/comment', commentRouter)
  * @swagger
  * /api/post/comment/{postId}:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - post
  *    summary: comment a post
@@ -58,6 +60,8 @@ postRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: Requ
  * @swagger
  * /api/post/comment/{postId}:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - post
  *    summary: get the comments of the user

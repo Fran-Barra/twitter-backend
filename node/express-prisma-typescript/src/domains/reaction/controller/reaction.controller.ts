@@ -28,6 +28,8 @@ const reactionService: ReactionService = new ReactionServiceImpl(
  * @swagger
  * /api/reaction/{postId}:
  *  post:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - reaction
  *    summary: react to a post
@@ -77,6 +79,8 @@ reactionRouter.post("/:post_id", async (req: Request, res: Response)=>{
  * @swagger
  * /api/reaction/{postId}:
  *  delete:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - reaction
  *    summary: react to a post
@@ -122,6 +126,8 @@ reactionRouter.delete("/:post_id", async (req: Request, res: Response)=>{
  * @swagger
  * /api/reaction/retweets/by_user/{userId}:
  *  delete:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - reaction
  *    summary: get retweets of a user
@@ -158,6 +164,8 @@ reactionRouter.get("/retweets/by_user/:userId", async (req: Request, res: Respon
  * @swagger
  * /api/reaction/likes/by_user/{userId}:
  *  delete:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - reaction
  *    summary: get posts liked by the user

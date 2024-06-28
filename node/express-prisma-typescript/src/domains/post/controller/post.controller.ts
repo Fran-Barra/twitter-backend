@@ -15,6 +15,8 @@ export const postRouter = Router()
  * @swagger
  * /api/post/:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - post
  *    summary: get the user posts
@@ -41,6 +43,8 @@ postRouter.get('/', async (req: Request, res: Response) => {
  * @swagger
  * /api/post/{postId}:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - post
  *    summary: get an specific post
@@ -66,6 +70,8 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  * @swagger
  * /api/post/by_user/{userId}:
  *  get:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - post
  *    summary: Get all posts of a user
@@ -102,6 +108,8 @@ postRouter.get('/by_user/:userId', async (req: Request, res: Response) => {
  * @swagger
  * /api/post/:
  *  post:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - post
  *    summary: Publish a new post as the author
@@ -135,6 +143,8 @@ postRouter.post('/', BodyValidation(CreatePostInputDTO), async (req: Request, re
  * @swagger
  * /api/post/{postId}:
  *  delete:
+ *    security:
+ *      - bearerAuth: []
  *    tags:
  *      - post
  *    summary: delete a specific post
