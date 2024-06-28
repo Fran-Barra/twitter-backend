@@ -43,10 +43,8 @@ export class PostRepositoryImpl implements PostRepository {
         }
       })
       return await commentPromise
-    })
-    console.log("comment: " + comment);
-    
-    return comment
+    })    
+    return new PostDTO(comment)
   }
 
   async getAllByDatePaginated (options: CursorPagination): Promise<PostDTO[]> {
