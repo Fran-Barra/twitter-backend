@@ -14,7 +14,7 @@ postRouter.use('/comment', commentRouter)
 /**
  * @swagger
  * /api/post/comment/{postId}:
- *  get:
+ *  post:
  *    security:
  *      - bearerAuth: []
  *    tags:
