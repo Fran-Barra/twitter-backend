@@ -18,6 +18,8 @@ export class FollowServiceImpl implements FollowService, FollowsAndUpdatesServic
     }
 
     async stopFollow(followerId: string, followedId: string) : Promise<void> {
+        //TODO: since stopFollow does not return if deleted something or not, then I can't guarantee that something was deleted
+        //resulting in calling the observers in wrong cases
         await this.followRepository.stopFollow(followerId, followedId)
         this.observers.forEach(o => o.onStoppedFollowingAction(followerId, followedId))
     }
