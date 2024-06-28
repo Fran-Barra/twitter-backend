@@ -62,8 +62,8 @@ export class ReactionRepositoryImpl implements ReactionRepository {
             } else if (reaction.reactionType == ReactionType.Retweet) {
                 promises.push(pr.post.update({ where: {id: reaction.postId}, data: {qtyRetweets: {decrement: 1}}}))
             }
-            //TODO: see possible ways to manage this
-            else throw Error(`encountered unexpected reaction type ${reaction.reactionType}`)
+ 
+            else throw new ValidationException([new String(`encountered unexpected reaction type ${reaction.reactionType}`)])
             return Promise.all(promises)
         })
     }
