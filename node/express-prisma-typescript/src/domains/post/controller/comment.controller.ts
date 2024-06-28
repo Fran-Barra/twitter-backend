@@ -63,6 +63,13 @@ commentRouter.post('/:postId', BodyValidation(CreatePostInputDTO), async (req: R
  *    tags:
  *      - post
  *    summary: get the comments from post
+ *    parameters:
+ *      - in: path
+ *        name: postId
+ *        required: true
+ *        description: The ID of the post to be commented
+ *        schema:
+ *          type: string
  *    responses:
  *      200:
  *        description: a list of posts, may be empty
