@@ -88,5 +88,24 @@ export class FollowRepositoryImpl implements FollowRepository {
         return followedIds.length <= follows.length
     }
 
+    async allUsersFollowEachOther(userIds: string[]) : Promise<boolean> {
+        const relations = await this.db.follow.findMany({
+            where: {
+                deletedAt: null,
+                followerId: {
+                    in: userIds
+                },
+                followedId: {
+                    in: userIds
+                }
+            },
+            select: {
+                id: true
+            }
+        })
+
+        const expectedRelations = userIds.length * (userIds.length-1)
+        return relations.length >= expectedRelations
+    }
 
 }

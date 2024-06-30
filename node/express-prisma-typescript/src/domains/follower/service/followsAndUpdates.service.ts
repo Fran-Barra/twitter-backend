@@ -3,6 +3,7 @@ export interface FollowsAndUpdatesService {
 
     userFollows: (followerId: string, followedId: string) => Promise<boolean> 
     userFollowsAll: (followerId: string, followedIds: string[]) => Promise<boolean>
+    allUsersFollowEachOther: (usersId: string[]) => Promise<boolean>
 }
 
 export interface OnStoppedFollowingObserver {

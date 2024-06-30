@@ -35,4 +35,9 @@ export class FollowServiceImpl implements FollowService, FollowsAndUpdatesServic
     userFollowsAll(followerId: string, followedIds: string[]) : Promise<boolean> {
         return this.followRepository.userFollowsAll(followerId, followedIds)
     }
+
+    allUsersFollowEachOther(usersId: string[]) : Promise<boolean> {
+        return this.followRepository.allUsersFollowEachOther(usersId);
+    }
+
 }
