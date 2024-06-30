@@ -9,6 +9,7 @@ export class UserIsPublicOrViewerFollowsUser implements AuthToSeeUserPosts {
         private readonly userFollows: FollowsAndUpdatesService
     ) {}
 
+    //TODO: auth is viewer is the same that viewed
     async authorized(viewerUserId: string, viewedUsedId: string) : Promise<boolean> {
         const isPublic = await this.userIsPublic(viewedUsedId)
         if (isPublic) return true
