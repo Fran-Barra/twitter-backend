@@ -3,13 +3,15 @@ import { FollowRepository } from "../../../src/domains/follower/repository/follo
 export class FollowRepositoryMock implements FollowRepository {
 
     constructor(
-        private readonly follows: boolean = false,
-        private readonly followsAll: boolean = false
+        private follows: boolean = false,
+        private readonly followsAll: boolean = false,
+        private readonly followsEachOther: boolean = false
     ) {}
 
     startFollow(follower: string, followed: string) : Promise<void> {
         return Promise.resolve()
     }
+
     stopFollow(follower: string, followed: string) : Promise<void> {
         return Promise.resolve()
     }
@@ -22,4 +24,11 @@ export class FollowRepositoryMock implements FollowRepository {
         return Promise.resolve(this.followsAll)
     }
 
+    allUsersFollowEachOther(usersId: string[]) : Promise<boolean> {
+        return Promise.resolve(this.followsEachOther)
+    }
+
+    public setFollowsToTrue() {
+        this.follows = true
+    }
 }
