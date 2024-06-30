@@ -1,7 +1,7 @@
 import { SignupInputDTO } from '@domains/auth/dto'
 import { PrismaClient } from '@prisma/client'
-import { OffsetPagination } from '@types'
-import { ExtendedUserDTO, UserDTO } from '../dto'
+import { CursorPagination, OffsetPagination } from '@types'
+import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
 import { UserRepository } from './user.repository'
 
 export class UserRepositoryImpl implements UserRepository {
@@ -13,13 +13,13 @@ export class UserRepositoryImpl implements UserRepository {
     }).then(user => new UserDTO(user))
   }
 
-  async getById (userId: any): Promise<UserDTO | null> {
+  async getById (userId: any): Promise<UserViewDTO | null> {
     const user = await this.db.user.findUnique({
       where: {
         id: userId
       }
     })
-    return user ? new UserDTO(user) : null
+    return user ? new UserViewDTO(user) : null
   }
 
   async delete (userId: any): Promise<void> {
@@ -30,8 +30,21 @@ export class UserRepositoryImpl implements UserRepository {
     })
   }
 
-  async getRecommendedUsersPaginated (options: OffsetPagination): Promise<UserDTO[]> {
+  async getRecommendedUsersPaginated (userId: string, options: OffsetPagination): Promise<UserViewDTO[]> {
     const users = await this.db.user.findMany({
+      where: {
+        followers: {
+          some: {
+            follower: {
+              followers: {
+                some: {
+                  followerId: userId
+                }
+              }
+            }
+          }
+        }
+      },
       take: options.limit ? options.limit : undefined,
       skip: options.skip ? options.skip : undefined,
       orderBy: [
@@ -40,7 +53,7 @@ export class UserRepositoryImpl implements UserRepository {
         }
       ]
     })
-    return users.map(user => new UserDTO(user))
+    return users.map(user => new UserViewDTO(user))
   }
 
   async getByEmailOrUsername (email?: string, username?: string): Promise<ExtendedUserDTO | null> {
@@ -57,5 +70,23 @@ export class UserRepositoryImpl implements UserRepository {
       }
     })
     return user ? new ExtendedUserDTO(user) : null
+  }
+
+  async getUsersByUsername(username: string, options: CursorPagination): Promise<UserViewDTO[]> {
+    const users = await this.db.user.findMany({
+      where: {
+        username: {
+          contains: username,
+          mode: 'insensitive'
+        }
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: {
+        username: "desc"
+      }
+    })    
+    return users.map(user => new UserViewDTO(user))
   }
 }

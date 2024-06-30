@@ -14,6 +14,29 @@ export const authRouter = Router()
 // Use dependency injection
 const service: AuthService = new AuthServiceImpl(new UserRepositoryImpl(db))
 
+
+/**
+ * @swagger
+ * /api/auth/signup/:
+ *  post:
+ *    tags:
+ *      - auth
+ *    summary: create a new user and generate a token
+ *    requestBody:
+ *      description: The information of the user create
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/SignupInputDTO'
+ *    responses:
+ *      200:
+ *        description: The user was created and logged successfully
+ *        content:
+ *          type: string
+ *      409:
+ *        description: the user already exists
+ */
 authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 
@@ -22,6 +45,35 @@ authRouter.post('/signup', BodyValidation(SignupInputDTO), async (req: Request, 
   return res.status(HttpStatus.CREATED).json(token)
 })
 
+
+/**
+ * @swagger
+ * /api/auth/login/:
+ *  post:
+ *    tags:
+ *      - auth
+ *    summary: Log in with user credentials
+ *    requestBody:
+ *      description: The information of the user to log in
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/LoginInputDTO'
+ *    responses:
+ *      200:
+ *        description: The user logged in successfully
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                token:
+ *                  type: string
+ *                  description: The JWT token
+ *      401:
+ *        description: Password or email were wrong
+ */
 authRouter.post('/login', BodyValidation(LoginInputDTO), async (req: Request, res: Response) => {
   const data = req.body
 

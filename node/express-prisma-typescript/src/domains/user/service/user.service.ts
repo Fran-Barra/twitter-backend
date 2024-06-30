@@ -1,8 +1,9 @@
-import { OffsetPagination } from '@types'
-import { UserDTO } from '../dto'
+import { CursorPagination, OffsetPagination } from '@types'
+import { UserDTO, UserViewDTO } from '../dto'
 
 export interface UserService {
   deleteUser: (userId: any) => Promise<void>
-  getUser: (userId: any) => Promise<UserDTO>
-  getUserRecommendations: (userId: any, options: OffsetPagination) => Promise<UserDTO[]>
+  getUser: (userId: any) => Promise<UserViewDTO>
+  getUserRecommendations: (userId: any, options: OffsetPagination) => Promise<UserViewDTO[]>
+  getUsersByName: (username: string, options: CursorPagination) => Promise<UserViewDTO[]>
 }

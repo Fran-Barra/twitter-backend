@@ -24,13 +24,20 @@ model User {
   email    String  @unique // Unique constraint
   password String
 
+  private Boolean @default(false)
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
   posts     Post[]
-  follows   Follow[] @relation(name: "follows")
-  followers Follow[] @relation(name: "followers")
+  follows   Follow[]   @relation(name: "follows")
+  followers Follow[]   @relation(name: "followers")
+  Reaction  Reaction[]
+
+  chats UserOnChat[]
+  ownedChats Chat[] @relation(name: "chat_owner")
+  messages ChatMessage[]
 }
 
 model Follow {
@@ -45,6 +52,8 @@ model Follow {
 
   follower User @relation(name: "follows", fields: [followerId], references: [id], onDelete: Cascade) // One to many
   followed User @relation(name: "followers", fields: [followedId], references: [id], onDelete: Cascade) // One to many
+
+  @@unique([followerId, followedId], name: "unique_follower_follow")
 }
 
 model Post {
@@ -53,10 +62,88 @@ model Post {
   authorId String   @db.Uuid // Foreign Key
   content  String   @db.VarChar(240) // Limit the content to 240 characters
   images   String[]
+  commentedPostId String? @db.Uuid
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime? // Optional value
 
-  author User @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
+  qtyLikes Int @default(0)
+  qtyRetweets Int @default(0)
+  qtyComments Int @default(0)
+  
+
+  author   User       @relation(fields: [authorId], references: [id], onDelete: Cascade) // One to many
+  reactions Reaction[]
+  comments Post[] @relation(name: "post_comments")
+  commentedPost Post?  @relation(fields: [commentedPostId], references: [id], name: "post_comments")
+}
+
+model Reaction {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  reactionType ReactionType
+  postId       String       @db.Uuid
+  userId       String       @db.Uuid
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Optional value
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([reactionType, postId, userId], name: "unique_post_reaction")
+}
+
+enum ReactionType {
+  Like
+  Retweet
+}
+
+
+
+
+
+model Chat {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  name String
+  ownerId String @db.Uuid
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Optional value
+
+  owner User @relation(fields: [ownerId], references: [id], name: "chat_owner")
+  participants UserOnChat[]
+  messages ChatMessage[]
+}
+
+model UserOnChat {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @db.Uuid
+  chatId String @db.Uuid
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // Optional value
+
+  user User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
+  @@unique([userId, chatId], name: "unique_chat_user")
+}
+
+model ChatMessage {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  userId String @db.Uuid
+  chatId String @db.Uuid
+  message String
+
+  createdAt DateTime  @default(now())
+
+  sender User @relation(fields: [userId], references: [id])
+  chat Chat @relation(fields: [chatId], references: [id])
 }

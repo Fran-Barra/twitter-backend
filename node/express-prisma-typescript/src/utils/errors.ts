@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import HttpStatus from 'http-status'
 import { Logger } from '@utils'
+import { Socket } from 'socket.io'
 
 abstract class HttpException extends Error {
   constructor (readonly code: number, readonly message: string, readonly error?: object[] | object) {
@@ -52,4 +53,20 @@ export function ErrorHandling (error: Error, req: Request, res: Response, next: 
   }
   Logger.error(error.message)
   return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: error.message, code: 500 })
+}
+
+export function ErrorHandlingSocket (error: Error | unknown, socket: Socket) : void {
+  if (error instanceof Error) {
+    if (error instanceof HttpException) {
+      if (error.code === HttpStatus.INTERNAL_SERVER_ERROR) {
+        Logger.error(error.message)
+      }      
+      socket.emit('system error', {message: error.message, code: error.code, errors: error.error})
+      return
+    }
+    Logger.error(error.message)
+    socket.emit('system error', {message: error.message, code: HttpStatus.INTERNAL_SERVER_ERROR})
+    return  
+  }
+  socket.emit('system error', {message: 'unknown error happened', code: HttpStatus.INTERNAL_SERVER_ERROR})
 }

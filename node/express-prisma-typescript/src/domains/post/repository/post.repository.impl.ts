@@ -3,19 +3,48 @@ import { PrismaClient } from '@prisma/client'
 import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
-import { CreatePostInputDTO, PostDTO } from '../dto'
+import { CreatePostOrCommentInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
-  async create (userId: string, data: CreatePostInputDTO): Promise<PostDTO> {
-    const post = await this.db.post.create({
+
+  create (userId: string, data: CreatePostOrCommentInputDTO): Promise<PostDTO> {    
+    if (data.commentedPostId === undefined) return this.createPost(userId, data)
+    return this.createComment(userId, data)
+  }
+
+  private async createPost(userId: string, data: CreatePostOrCommentInputDTO) : Promise<PostDTO> {
+    return new PostDTO(await this.db.post.create({
       data: {
         authorId: userId,
         ...data
       }
-    })
-    return new PostDTO(post)
+    }))
+  }
+
+  private async createComment(userId: string, data: CreatePostOrCommentInputDTO) : Promise<PostDTO>{
+    if (data.commentedPostId === undefined) throw new Error("method used incorrectly, expecting commentedPostId")
+    
+    const comment = await this.db.$transaction(async pr => {
+      const commentPromise = pr.post.create({
+        data: {
+          authorId: userId,
+          ...data
+        }
+      })
+
+      await pr.post.update({
+        where: {id: data.commentedPostId},
+        data: {
+          qtyComments: {
+            increment: 1
+          }
+        }
+      })
+      return await commentPromise
+    })    
+    return new PostDTO(comment)
   }
 
   async getAllByDatePaginated (options: CursorPagination): Promise<PostDTO[]> {
@@ -46,18 +75,78 @@ export class PostRepositoryImpl implements PostRepository {
   async getById (postId: string): Promise<PostDTO | null> {
     const post = await this.db.post.findUnique({
       where: {
-        id: postId
+        id: postId,
       }
     })
     return (post != null) ? new PostDTO(post) : null
   }
 
-  async getByAuthorId (authorId: string): Promise<PostDTO[]> {
-    const posts = await this.db.post.findMany({
+  getByAuthorId (authorId: string): Promise<ExtendedPostDTO[]> {
+    return this.db.post.findMany({
       where: {
-        authorId
+        authorId,
+        commentedPost: null
+      },
+      include: {
+        author: true
       }
     })
-    return posts.map(post => new PostDTO(post))
+  }
+
+  async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    const posts = await this.db.post.findMany({
+      where: {
+        OR: [
+          {
+            author: {
+              private: false
+          }},
+          {
+            author: {
+              followers: {
+                some: {
+                  followerId: userId,
+                  deletedAt: null
+                }
+              }
+            }
+          }
+        ],
+        commentedPost: null
+      },
+      include: {
+        author: true
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        },
+        {
+          id: 'asc'
+        }
+      ]
+    })
+    return posts
+  }
+
+  async getCommentsFromPost(postId: string, options: CursorPagination) : Promise<ExtendedPostDTO[]> {
+    const result = await this.db.post.findMany({
+      where: {
+        commentedPostId: postId
+      },
+      include: {author: true},
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: {
+        reactions: {
+          _count: 'asc'
+        }
+      }
+    })
+    return result
   }
 }

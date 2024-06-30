@@ -2,4 +2,6 @@
 .envrc
 /dist/
 /.idea/
+/.vscode/
 .env
+/coverage
