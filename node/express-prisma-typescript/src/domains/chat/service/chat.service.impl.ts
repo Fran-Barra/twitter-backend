@@ -2,21 +2,19 @@ import { ForbiddenException, NotFoundException } from "@utils";
 import { ChatDTO, MessageDTO } from "../dto";
 import { ChatRepository } from "../repository/chat.repository";
 import { ChatService } from "./chat.service";
-import { FollowsAndUpdatesService, OnStoppedFollowingObserver } from "@domains/follower";
 import { CursorPagination } from "@types";
+import { AuthToAddParticipantInChat } from "@domains/auth/service";
 
 
 //TODO: imported the other repository by accident, don't make it public
-export class ChatServiceImpl implements ChatService, OnStoppedFollowingObserver{
+export class ChatServiceImpl implements ChatService {
     constructor(
         private readonly chatRepository: ChatRepository,
-        private readonly followsUser: FollowsAndUpdatesService
-    ) {
-        followsUser.subscribeToOnStoppedFollowing(this)
-    }
+        private readonly authToAddParticipant: AuthToAddParticipantInChat
+    ) {}
 
     async createChat(ownerId: string, chatName: string, participantsId: string[]) : Promise<ChatDTO> {
-        if (!await this.followsUser.userFollowsAll(ownerId, participantsId)) 
+        if (!await this.authToAddParticipant.authorizeManyAtCreation(ownerId, participantsId)) 
             throw new ForbiddenException()
         return this.chatRepository.createChat(ownerId, chatName, participantsId)
     }
@@ -27,21 +25,17 @@ export class ChatServiceImpl implements ChatService, OnStoppedFollowingObserver{
 
 
     async closeChat(ownerId: string, chatId: string) : Promise<void> {
-        if (await this.isOwner(ownerId, chatId)) throw new ForbiddenException()
-
+        if (!await this.isOwner(ownerId, chatId)) throw new ForbiddenException()
         this.chatRepository.deleteChat(chatId)
     }
 
     async addParticipant(ownerId: string, chatId: string, participantId: string) : Promise<void> {
-        if (!await this.followsUser.userFollows(ownerId, participantId)) new ForbiddenException()
-        if (await this.isOwner(ownerId, chatId)) new ForbiddenException()
-
+        if (!await this.authToAddParticipant.authorizeOne(ownerId, chatId, participantId)) new ForbiddenException()
         this.chatRepository.addParticipant(chatId, participantId)
     }
 
     async removeParticipant(ownerId: string, chatId: string, participantId: string) : Promise<void> {
-        if (await this.isOwner(ownerId, chatId)) new ForbiddenException()
-
+        if (!await this.isOwner(ownerId, chatId)) new ForbiddenException()
         this.chatRepository.removeParticipant(chatId, participantId)
     }
 
@@ -73,10 +67,5 @@ export class ChatServiceImpl implements ChatService, OnStoppedFollowingObserver{
         const chat = await this.chatRepository.getChat(chatId)
         if (chat === null) throw new NotFoundException('chat')
         return chat.owner.id === ownerId
-    }
-
-    async onStoppedFollowingAction(followerId: string, followedId: string) : Promise<void> {
-        //TODO: what happens if owner?
-        await this.chatRepository.quitFromShearedChats(followerId, followedId)   
     }
 }

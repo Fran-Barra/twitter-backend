@@ -3,5 +3,11 @@ import { ChatRepositoryImpl } from "../repository/chat.repository.impl";
 import { ChatServiceImpl } from "../service/chat.service.impl";
 import followService from "@domains/follower/resource";
 import { ChatService } from "../service/chat.service";
+import { ChatRepository } from "../repository/chat.repository";
+import { UsersFollowEachOtherAndChatParticipants } from "@domains/auth/service";
 
-export const chatService : ChatService = new ChatServiceImpl(new ChatRepositoryImpl(db), followService)
+const chatRepository : ChatRepository = new ChatRepositoryImpl(db)
+export const chatService : ChatService = new ChatServiceImpl(
+    new ChatRepositoryImpl(db), 
+    new UsersFollowEachOtherAndChatParticipants(followService, chatRepository)
+)
