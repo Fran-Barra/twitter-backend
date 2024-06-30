@@ -153,14 +153,24 @@ export class ChatRepositoryImpl implements ChatRepository{
     async quitFromShearedChats(followerId: string, followedId: string) : Promise<void> {
         await this.db.userOnChat.deleteMany({
             where: {
-                userId: followerId,
-                chat: {
-                    participants: {
-                        some: {
-                            userId: followedId
+                OR: [
+                    {
+                        userId: followerId,
+                        chat: {
+                            participants: {
+                                some: {
+                                    userId: followedId
+                                }
+                            }
                         }
+                    },
+                    {
+                        chat: {
+                            ownerId: followerId,
+                        },
+                        userId: followedId
                     }
-                }
+                ]
             }
         })
     }
