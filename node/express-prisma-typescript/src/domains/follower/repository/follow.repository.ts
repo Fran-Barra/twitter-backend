@@ -5,4 +5,5 @@ export interface FollowRepository {
 
     userFollows: (followerId: string, followedId: string) => Promise<boolean> 
     userFollowsAll: (followerId: string, followedIds: string[]) => Promise<boolean>
+    allUsersFollowEachOther: (usersId: string[]) => Promise<boolean>
 }
