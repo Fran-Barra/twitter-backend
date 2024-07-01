@@ -9,7 +9,12 @@ export class UserRepositoryImpl implements UserRepository {
 
   async create (data: SignupInputDTO): Promise<UserDTO> {
     return await this.db.user.create({
-      data
+      data: {
+        email: data.email,
+        password: data.password,
+        username: data.username,
+        private: data.privateUser
+      }
     }).then(user => new UserDTO(user))
   }
 
