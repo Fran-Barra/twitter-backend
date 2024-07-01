@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
+import { ArrayMaxSize, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { ExtendedUserDTO } from '@domains/user/dto'
 
 
@@ -13,10 +13,12 @@ import { ExtendedUserDTO } from '@domains/user/dto'
  *        content:
  *          type: string
  *          description: the content of the post
+ *          example: "hello there"
  *        images:
  *          type: array
  *          items:
  *            type: string
+ *            example: "image1"
  *          description: the images of the post. Is optional
  */
 export class CreatePostInputDTO implements CreatePostOrCommentInputDTO{
@@ -26,7 +28,7 @@ export class CreatePostInputDTO implements CreatePostOrCommentInputDTO{
     content!: string
 
   @IsOptional()
-  @MaxLength(4)
+  @ArrayMaxSize(4)
     images?: string[]
 }
 
