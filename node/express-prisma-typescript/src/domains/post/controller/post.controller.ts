@@ -91,6 +91,7 @@ postRouter.get('/:postId', async (req: Request, res: Response) => {
  *        description: The ID of the user whose posts are to be retrieved
  *        schema:
  *          type: string
+ *          example: "bff5b48a-73e9-41e1-b9a2-2d1ae5066989"
  *    responses:
  *      200:
  *        description: A list of posts of the user, may be empty
