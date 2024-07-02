@@ -74,7 +74,11 @@ export class ReactionRepositoryImpl implements ReactionRepository {
                 reactions: {
                     some: { 
                         userId: authorId,
-                        reactionType: ReactionType.Retweet
+                        reactionType: ReactionType.Retweet,
+                        deletedAt: null,
+                        user: {
+                            deletedAt: null
+                        }
                     }
                 }
             },
@@ -100,25 +104,30 @@ export class ReactionRepositoryImpl implements ReactionRepository {
                     some: { 
                         userId: likerId,
                         reactionType: ReactionType.Like,
-                        post: {
-                            OR: [
-                                {
-                                  author: {private: false}
-                                },
-                                {
-                                  author: {
-                                    followers: {
-                                      some: {
-                                        followerId: userId,
-                                        deletedAt: null
-                                      }
-                                    }
-                                  }
-                                }
-                              ]
+                        deletedAt: null,
+                        user: {
+                            deletedAt: null
                         }
                     }
-                }
+                },
+                OR: [
+                    {
+                        author: {id: userId}
+                    },
+                    {
+                        author: {private: false}
+                    },
+                    {
+                        author: {
+                          followers: {
+                            some: {
+                              followerId: userId,
+                              deletedAt: null
+                            }
+                          }
+                        }
+                    }
+                ]
             },
             cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
             skip: options.after ?? options.before ? 1 : undefined,
