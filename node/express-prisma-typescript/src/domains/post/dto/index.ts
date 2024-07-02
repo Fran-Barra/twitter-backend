@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
+import { ArrayMaxSize, IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator'
 import { ExtendedUserDTO } from '@domains/user/dto'
 
 
@@ -13,10 +13,12 @@ import { ExtendedUserDTO } from '@domains/user/dto'
  *        content:
  *          type: string
  *          description: the content of the post
+ *          example: "hello there"
  *        images:
  *          type: array
  *          items:
  *            type: string
+ *            example: "image1"
  *          description: the images of the post. Is optional
  */
 export class CreatePostInputDTO implements CreatePostOrCommentInputDTO{
@@ -26,7 +28,7 @@ export class CreatePostInputDTO implements CreatePostOrCommentInputDTO{
     content!: string
 
   @IsOptional()
-  @MaxLength(4)
+  @ArrayMaxSize(4)
     images?: string[]
 }
 
@@ -75,39 +77,42 @@ export class PostDTO {
 /**
  * @swagger
  * components:
- *  schemas:
- *    ExtendedPostDTO:
- *      tags:
- *        - post
- *      properties:
- *        id:
- *          type: string
- *          description: the id of the post
- *        authorId:
- *          type: string
- *          description: the user id of the author
- *        content:
- *          type: string
- *          description: the content of the post
- *        images:
- *          type: array
- *          items:
- *            type: string
- *          description: links for the images
- *        createdAt:
- *          type: Date
- *          description: when the post was created
- *        author:
- *          type: '#/components/schemas/ExtendedUserDTO'
- *        qtyComments:
- *          type: number
- *          description: the amount of comments this post has
- *        qtyLikes:
- *          type: number
- *          description: the amount of likes this post has
- *        qtyRetweets:
- *          type: number
- *          description: the amount of retweets this post has
+ *   schemas:
+ *     ExtendedPostDTO:
+ *       type: object
+ *       tags:
+ *         - post
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: The ID of the post
+ *         authorId:
+ *           type: string
+ *           description: The user ID of the author
+ *         content:
+ *           type: string
+ *           description: The content of the post
+ *         images:
+ *           type: array
+ *           items:
+ *             type: string
+ *           description: Links for the images
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: When the post was created
+ *         author:
+ *           $ref: '#/components/schemas/UserViewDTO'
+ *           description: The author of the post
+ *         qtyComments:
+ *           type: number
+ *           description: The amount of comments this post has
+ *         qtyLikes:
+ *           type: number
+ *           description: The amount of likes this post has
+ *         qtyRetweets:
+ *           type: number
+ *           description: The amount of retweets this post has
  */
 export class ExtendedPostDTO extends PostDTO {
   constructor (post: ExtendedPostDTO) {

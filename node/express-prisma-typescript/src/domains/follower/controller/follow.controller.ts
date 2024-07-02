@@ -23,6 +23,7 @@ const followS : FollowService = followService
  *         name: userId
  *         schema:
  *           type: string
+ *           example: "bff5b48a-73e9-41e1-b9a2-2d1ae5066989"
  *         required: true
  *         description: The user to follow
  *     responses:
@@ -53,6 +54,7 @@ followRouter.post("/follow/:userId", async (req: Request, res: Response) => {
  *         name: userId
  *         schema:
  *           type: string
+ *           example: "bff5b48a-73e9-41e1-b9a2-2d1ae5066989"
  *         required: true
  *         description: The user to unfollow
  *     responses:

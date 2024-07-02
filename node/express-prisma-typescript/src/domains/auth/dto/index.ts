@@ -64,13 +64,16 @@ export class SignupInputDTO {
  *          type: string
  *          description: the email of the user
  *          required: false
+ *          example: "test-mail2@gmail.com"
  *        username:
  *          type: string
  *          description: the username, that will be shown to others
  *          required: false
+ *          example: "test2"
  *        password:
  *          type: string
  *          description: the password to log in with your user
+ *          example: "Test1-plot-armor"
  */
 export class LoginInputDTO {
   @IsOptional()

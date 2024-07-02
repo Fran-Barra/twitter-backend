@@ -17,8 +17,12 @@ export class PostServiceImpl implements PostService {
     const post = await this.repository.create(userId, data)
     if (data.images === undefined) return post
 
-    post.images = await this.imageService.generateLinksForPostImages(post.id, data.images.length)
-    return await this.repository.create(userId, post)
+    const postLinksAndImages = await this.imageService.generateLinksForPostImages(post.id, data.images.length)
+    
+    await this.repository.saveImagesLinks(post.id, postLinksAndImages.read)
+    
+    post.images = postLinksAndImages.post
+    return post
   }
 
   async createComment(userId: string, postId: string, data: CreatePostInputDTO) : Promise<PostDTO> {
@@ -35,8 +39,12 @@ export class PostServiceImpl implements PostService {
       })
     if (data.images === undefined) return comment
       
-    comment.images = await this.imageService.generateLinksForPostImages(comment.id, data.images.length)
-    return await this.repository.create(userId, comment)
+    const postLinksAndImages = await this.imageService.generateLinksForPostImages(comment.id, data.images.length)
+
+    await this.repository.saveImagesLinks(comment.id, postLinksAndImages.read)
+    
+    comment.images = postLinksAndImages.post
+    return comment
   }
 
 

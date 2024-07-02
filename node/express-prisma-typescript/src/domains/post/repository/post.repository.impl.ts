@@ -8,7 +8,6 @@ import { CreatePostOrCommentInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
 
-
   create (userId: string, data: CreatePostOrCommentInputDTO): Promise<PostDTO> {    
     if (data.commentedPostId === undefined) return this.createPost(userId, data)
     return this.createComment(userId, data)
@@ -22,6 +21,8 @@ export class PostRepositoryImpl implements PostRepository {
       }
     }))
   }
+
+  
 
   private async createComment(userId: string, data: CreatePostOrCommentInputDTO) : Promise<PostDTO>{
     if (data.commentedPostId === undefined) throw new Error("method used incorrectly, expecting commentedPostId")
@@ -46,6 +47,19 @@ export class PostRepositoryImpl implements PostRepository {
     })    
     return new PostDTO(comment)
   }
+
+  async saveImagesLinks(postId: string, links: string[]) : Promise<PostDTO> {
+    const post = await this.db.post.update({
+      where: {
+        id: postId
+      },
+      data: {
+        images: links
+      }
+    })
+    return new PostDTO(post)
+  }
+
 
   async getAllByDatePaginated (options: CursorPagination): Promise<PostDTO[]> {
     const posts = await this.db.post.findMany({

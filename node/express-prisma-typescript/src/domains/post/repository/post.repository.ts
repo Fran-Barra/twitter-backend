@@ -3,6 +3,7 @@ import { CreatePostOrCommentInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
 
 export interface PostRepository {
   create: (userId: string, data: CreatePostOrCommentInputDTO) => Promise<PostDTO>
+  saveImagesLinks: (postId: string, links: string[]) => Promise<PostDTO>
   
   getAllByDatePaginated: (options: CursorPagination) => Promise<PostDTO[]>
   getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]>
