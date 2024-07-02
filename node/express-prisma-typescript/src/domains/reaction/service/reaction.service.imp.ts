@@ -18,11 +18,11 @@ export class ReactionServiceImpl implements ReactionService {
         return await this.reactionRepository.getUserRetweets(author, options)
     }
 
-    async getPublicAndFollowedUsersPostsLikedByTheUser(userId: string, author: string, options: CursorPagination) : Promise<PostDTO[]> {
-        const viewAuth = await this.authToSeeUserPost.authorized(userId, author)
+    async getPublicAndFollowedUsersPostsLikedByTheUser(userId: string, likerId: string, options: CursorPagination) : Promise<PostDTO[]> {
+        const viewAuth = await this.authToSeeUserPost.authorized(userId, likerId)
         if (!viewAuth) throw new NotFoundException("post")
 
-        return await this.reactionRepository.getUserRetweets(author, options)
+        return await this.reactionRepository.getPublicAndFollowedUsersPostsLikedByTheLiker(userId, likerId, options)
     }
 
 }
