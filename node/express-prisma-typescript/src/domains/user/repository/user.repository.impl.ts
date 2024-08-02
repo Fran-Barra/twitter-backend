@@ -13,7 +13,8 @@ export class UserRepositoryImpl implements UserRepository {
         email: data.email,
         password: data.password,
         username: data.username,
-        private: data.privateUser
+        private: data.privateUser,
+        name: data.name
       }
     }).then(user => new UserDTO(user))
   }
