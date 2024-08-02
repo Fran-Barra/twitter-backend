@@ -18,6 +18,9 @@ export class TokenDTO {
  *        username:
  *          type: string
  *          description: the username, that will be shown to others
+ *        name:
+ *          type: string
+ *          description: The name of the use, is an optional value
  *        password:
  *          type: string
  *          description: the password to log in with your user
@@ -36,6 +39,9 @@ export class SignupInputDTO {
     username: string
 
   @IsString()
+    name?: string
+
+  @IsString()
   @IsNotEmpty()
   @IsStrongPassword()
     password: string
@@ -44,10 +50,11 @@ export class SignupInputDTO {
   @IsNotEmpty()
     privateUser: boolean
 
-  constructor (email: string, username: string, password: string, privateUser: boolean) {
+  constructor (email: string, username: string, password: string, privateUser: boolean, name?: string) {
     this.email = email
     this.password = password
     this.username = username
+    this.name = name
     this.privateUser = privateUser
   }
 }
