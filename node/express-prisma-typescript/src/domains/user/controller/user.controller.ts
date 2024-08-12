@@ -95,11 +95,11 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  *            schema:
  *              type: object
  *              properties:
- *                userView:
+ *                allOf:
  *                  $ref: '#/components/schemas/UserViewDTO'
- *                followsBack:
- *                  type: boolean
- *                  description: Indicates if the searched user follows the logged-in user
+ *                  followsBack:
+ *                    type: boolean
+ *                    description: Indicates if the searched user follows the logged-in user
  *      404:
  *        description: The user with that ID was not found
  */
@@ -110,7 +110,7 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
   const user = await service.getUser(otherUserId)
   const followsBack = await followService.userFollows(otherUserId, userId)
 
-  return res.status(HttpStatus.OK).json({userView: user, followsBack: followsBack})
+  return res.status(HttpStatus.OK).json({...user, followsBack: followsBack})
 })
 
 
