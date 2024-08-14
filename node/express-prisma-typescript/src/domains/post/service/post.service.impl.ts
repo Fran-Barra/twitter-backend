@@ -72,7 +72,7 @@ export class PostServiceImpl implements PostService {
     const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
     if (authorized !== true) throw new NotFoundException('post')
 
-    return this.repository.getCommentsFromPost(postId, options)
+    return this.repository.getCommentsFromPost(postId, options, userId)
   }
 
   async getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
@@ -82,6 +82,6 @@ export class PostServiceImpl implements PostService {
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
     const authorized = await this.authToSeeUserPost.authorized(userId, authorId)
     if (authorized !== true) throw new NotFoundException('post')
-    return await this.repository.getByAuthorId(authorId)
+    return await this.repository.getByAuthorId(authorId, userId)
   }
 }

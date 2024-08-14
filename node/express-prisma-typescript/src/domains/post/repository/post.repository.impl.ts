@@ -1,9 +1,17 @@
-import { PrismaClient } from '@prisma/client'
+import { Prisma, PrismaClient, ReactionType } from '@prisma/client'
 
 import { CursorPagination } from '@types'
 
 import { PostRepository } from '.'
 import { CreatePostOrCommentInputDTO, ExtendedPostDTO, PostDTO } from '../dto'
+
+
+type CustomPostFindManyArgs = Omit<Prisma.PostFindManyArgs, 'include'> & {
+  include: {
+    author: boolean | undefined,
+    reactions: Prisma.Post$reactionsArgs | undefined
+  }
+};
 
 export class PostRepositoryImpl implements PostRepository {
   constructor (private readonly db: PrismaClient) {}
@@ -95,20 +103,23 @@ export class PostRepositoryImpl implements PostRepository {
     return (post != null) ? new PostDTO(post) : null
   }
 
-  getByAuthorId (authorId: string): Promise<ExtendedPostDTO[]> {
-    return this.db.post.findMany({
+  getByAuthorId (authorId: string, userId? : string): Promise<ExtendedPostDTO[]> {
+    const queryOptions: CustomPostFindManyArgs = {
       where: {
         authorId,
         commentedPost: null
       },
       include: {
-        author: true
+        author: true,
+        reactions: undefined
       }
-    })
+    }
+
+    return this.addReactionsInfoToPost(queryOptions, userId)
   }
 
   async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
-    const posts = await this.db.post.findMany({
+    const args : CustomPostFindManyArgs = {
       where: {
         OR: [
           {
@@ -129,7 +140,8 @@ export class PostRepositoryImpl implements PostRepository {
         commentedPost: null
       },
       include: {
-        author: true
+        author: true,
+        reactions: undefined
       },
       cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
       skip: options.after ?? options.before ? 1 : undefined,
@@ -142,16 +154,16 @@ export class PostRepositoryImpl implements PostRepository {
           id: 'asc'
         }
       ]
-    })
-    return posts
+    }
+    return this.addReactionsInfoToPost(args, userId);
   }
 
-  async getCommentsFromPost(postId: string, options: CursorPagination) : Promise<ExtendedPostDTO[]> {
-    const result = await this.db.post.findMany({
+  async getCommentsFromPost(postId: string, options: CursorPagination, userId?: string) : Promise<ExtendedPostDTO[]> {
+    const args : CustomPostFindManyArgs = {
       where: {
         commentedPostId: postId
       },
-      include: {author: true},
+      include: {author: true, reactions: undefined},
       cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
       skip: options.after ?? options.before ? 1 : undefined,
       take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
@@ -160,7 +172,40 @@ export class PostRepositoryImpl implements PostRepository {
           _count: 'asc'
         }
       }
+    }
+    return this.addReactionsInfoToPost(args, userId)
+  }
+
+  /**
+   * Add to the method were you want to get post info and add likedByUser and retweetedByUser info.
+   * How to use: implement the args respecting the CustomPostFindManyArgs and pass the userId.
+   * If the user Id does not exist then the query will return all what you need but without the liked and retweet info.
+   * @param args The arguments you want to add, respecting the CustomPostFindManyArgs
+   * @param userId The user from which the reaction info is.
+   */
+  addReactionsInfoToPost(args: CustomPostFindManyArgs, userId?: string) : Promise<ExtendedPostDTO[]> {
+    if (userId) {
+      args.include.reactions = {
+          where: {
+            userId,
+            deletedAt: null
+          },
+          select: {reactionType: true}
+      }
+    }
+
+    const posts = this.db.post.findMany<CustomPostFindManyArgs>(args)
+
+    if (!userId) return posts
+
+    
+    return posts.then((posts)=>{
+      return posts.map(post=>{
+        return new ExtendedPostDTO({
+        ...post,
+        likedByUser: post.reactions.some(r=>r.reactionType==ReactionType.Like),
+        retweetedByUser: post.reactions.some(r=>r.reactionType==ReactionType.Retweet)
+      })})
     })
-    return result
   }
 }

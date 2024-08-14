@@ -113,6 +113,12 @@ export class PostDTO {
  *         qtyRetweets:
  *           type: number
  *           description: The amount of retweets this post has
+ *         likedByUser:
+ *           type: boolean
+ *           description: If the post was liked by the user making the request, if no user then undefined
+ *         retweetedByUser:
+ *           type: boolean
+ *           description: If the post was retweeted by the user making the request, if no user then undefined
  */
 export class ExtendedPostDTO extends PostDTO {
   constructor (post: ExtendedPostDTO) {
@@ -121,12 +127,16 @@ export class ExtendedPostDTO extends PostDTO {
     this.qtyComments = post.qtyComments
     this.qtyLikes = post.qtyLikes
     this.qtyRetweets = post.qtyRetweets
+    this.likedByUser = post.likedByUser
+    this.retweetedByUser = post.retweetedByUser
   }
 
   author!: ExtendedUserDTO
   qtyComments!: number
   qtyLikes!: number
   qtyRetweets!: number
+  likedByUser?: boolean
+  retweetedByUser?: boolean
 }
 
 
