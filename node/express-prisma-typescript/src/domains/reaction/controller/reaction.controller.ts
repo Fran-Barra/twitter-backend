@@ -40,20 +40,13 @@ const reactionService: ReactionService = new ReactionServiceImpl(
  *        description: The ID of the post to react to
  *        schema:
  *          type: string
- *    requestBody:
- *      description: The information of the reaction
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            ReactionDTO:
- *              tags:
- *                - reaction
- *              properties:
- *                  reactionType:
- *                      type: ReactionType
- *                      description: like, retweet
- *                      example: like
+ *      - in: query
+ *        name: reactionType
+ *        required: true
+ *        description: The type of reaction (like, retweet)
+ *        schema:
+ *          type: string
+ *          enum: [like, retweet]
  *    responses:
  *      200:
  *        description: The created post
@@ -67,7 +60,7 @@ const reactionService: ReactionService = new ReactionServiceImpl(
 reactionRouter.post("/:post_id", async (req: Request, res: Response)=>{
     const {post_id: postId} = req.params;
     const { userId } = res.locals.context;
-    const { reactionType : type } = req.body
+    const { reactionType : type } = req.query as Record<string, string>
     const reactionType = stringToReactionType(type);
     if (reactionType === undefined) throw new ValidationException([{error: "reactionType must be one of the followings: like,0,retweet,1"}])
     
@@ -92,29 +85,23 @@ reactionRouter.post("/:post_id", async (req: Request, res: Response)=>{
  *        description: The ID of the post to react to
  *        schema:
  *          type: string
- *    requestBody:
- *      description: The information of the reaction
- *      required: true
- *      content:
- *        application/json:
- *          schema:
- *            ReactionDTO:
- *              tags:
- *                - reaction
- *              properties:
- *                  reactionType:
- *                      type: ReactionType
- *                      description: like, retweet
+ *      - in: query
+ *        name: reactionType
+ *        required: true
+ *        description: The type of reaction (like, retweet)
+ *        schema:
+ *          type: string
+ *          enum: [like, retweet]
  *    responses:
  *      200:
  *        description: the reaction was deleted
  *      400:
- *        description: Something was wrong with the body
+ *        description: Something was wrong with the request
  */
 reactionRouter.delete("/:post_id", async (req: Request, res: Response)=>{
     const {post_id: postId} = req.params;
     const { userId } = res.locals.context;
-    const { reactionType : type } = req.body
+    const { reactionType : type } = req.query as Record<string, string>
     const reactionType = stringToReactionType(type);
     if (reactionType === undefined) throw new ValidationException([{error: "reactionType must be one of the followings: like,0,retweet,1"}])
     
