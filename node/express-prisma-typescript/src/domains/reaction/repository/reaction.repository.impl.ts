@@ -31,7 +31,7 @@ export class ReactionRepositoryImpl implements ReactionRepository {
 
     private async reactivateReaction(reaction: Reaction) : Promise<Reaction> {
         const react = await this.db.$transaction(async pr => {
-            const updatedReaction = await pr.reaction.update({where: {unique_post_reaction: reaction}, data: {deletedAt: null}})
+            const updatedReaction = await pr.reaction.update({where: {id: reaction.id}, data: {deletedAt: null}})
             await this.IncreaseReactionCounterInPost(updatedReaction.postId, updatedReaction.reactionType, pr)
             return updatedReaction
         })
