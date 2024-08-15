@@ -111,11 +111,11 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
   const { userId: otherUserId } = req.params
 
   //TODO: this is a fast fix and should be optimized, to many independent calls to the db
-  const user = service.getUser(otherUserId)
-  const followsBack = followService.userFollows(otherUserId, userId)
-  const follows = followService.userFollows(userId, otherUserId)
-
-  await Promise.all([user, follows, followsBack])
+  const [user, followsBack, follows] = await Promise.all([
+    service.getUser(otherUserId), 
+    followService.userFollows(otherUserId, userId),
+    followService.userFollows(userId, otherUserId)
+  ])
   return res.status(HttpStatus.OK).json({...user, followsBack: followsBack, follows: follows})
 })
 
