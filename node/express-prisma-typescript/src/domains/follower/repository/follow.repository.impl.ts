@@ -17,11 +17,10 @@ export class FollowRepositoryImpl implements FollowRepository {
         )
     } catch (e) {
         if (e instanceof PrismaClientKnownRequestError) {
-            if (e.message.includes("unique_follower_follow") && e.code === "P2002") 
+            if (e.code === "P2002") 
                 await this.removeDeletedAt(follower, followed)
             else throw e
-        }
-        throw e
+        } else throw e
     }
     }
 
@@ -40,11 +39,14 @@ export class FollowRepositoryImpl implements FollowRepository {
     }
     
     async stopFollow(follower: string, followed: string): Promise<void> {
+        //TODO: it seems to epic fail if not found
+        
+        
         await this.db.follow.update({
             where: {
                 unique_follower_follow: {
-                    followedId: follower,
-                    followerId: followed
+                    followedId: followed,
+                    followerId: follower
                 }
             },
             data: {
