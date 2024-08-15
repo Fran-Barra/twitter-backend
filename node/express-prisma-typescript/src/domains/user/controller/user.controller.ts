@@ -100,6 +100,9 @@ userRouter.get('/me', async (req: Request, res: Response) => {
  *                  followsBack:
  *                    type: boolean
  *                    description: Indicates if the searched user follows the logged-in user
+ *                  follows:
+ *                    type: boolean
+ *                    description: Indicates if the logged-in user follows the searched user
  *      404:
  *        description: The user with that ID was not found
  */
@@ -107,10 +110,13 @@ userRouter.get('/:userId', async (req: Request, res: Response) => {
   const { userId } = res.locals.context
   const { userId: otherUserId } = req.params
 
-  const user = await service.getUser(otherUserId)
-  const followsBack = await followService.userFollows(otherUserId, userId)
+  //TODO: this is a fast fix and should be optimized, to many independent calls to the db
+  const user = service.getUser(otherUserId)
+  const followsBack = followService.userFollows(otherUserId, userId)
+  const follows = followService.userFollows(userId, otherUserId)
 
-  return res.status(HttpStatus.OK).json({...user, followsBack: followsBack})
+  await Promise.all([user, follows, followsBack])
+  return res.status(HttpStatus.OK).json({...user, followsBack: followsBack, follows: follows})
 })
 
 
