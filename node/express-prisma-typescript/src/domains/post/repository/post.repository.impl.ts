@@ -94,13 +94,27 @@ export class PostRepositoryImpl implements PostRepository {
     })
   }
 
-  async getById (postId: string): Promise<PostDTO | null> {
+  async getById (postId: string, userId?: string): Promise<ExtendedPostDTO | null> {
     const post = await this.db.post.findUnique({
       where: {
         id: postId,
+      },
+      include: {
+        author: true,
+        reactions: {
+          where: {
+            userId,
+            deletedAt: null
+          },
+          select: {reactionType: true}
+        }
       }
     })
-    return (post != null) ? new PostDTO(post) : null
+    return (post != null) ? new ExtendedPostDTO({
+      ...post,
+      likedByUser: post.reactions.some(r=>r.reactionType==ReactionType.Like),
+      retweetedByUser: post.reactions.some(r=>r.reactionType==ReactionType.Retweet)
+    }) : null
   }
 
   getByAuthorId (authorId: string, userId? : string): Promise<ExtendedPostDTO[]> {
