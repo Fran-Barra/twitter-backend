@@ -132,7 +132,39 @@ export class PostRepositoryImpl implements PostRepository {
     return this.addReactionsInfoToPost(queryOptions, userId)
   }
 
-  async getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+  getAllFollowedUserPostsByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    const args : CustomPostFindManyArgs = {
+      where: {
+        author: {
+          followers: {
+            some: {
+              followerId: userId,
+              deletedAt: null
+            }
+          }
+        },
+        commentedPost: null
+      },
+      include: {
+        author: true,
+        reactions: undefined
+      },
+      cursor: options.after ? { id: options.after } : (options.before) ? { id: options.before } : undefined,
+      skip: options.after ?? options.before ? 1 : undefined,
+      take: options.limit ? (options.before ? -options.limit : options.limit) : undefined,
+      orderBy: [
+        {
+          createdAt: 'desc'
+        },
+        {
+          id: 'asc'
+        }
+      ]
+    }
+    return this.addReactionsInfoToPost(args, userId);
+  }
+
+  getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     const args : CustomPostFindManyArgs = {
       where: {
         OR: [

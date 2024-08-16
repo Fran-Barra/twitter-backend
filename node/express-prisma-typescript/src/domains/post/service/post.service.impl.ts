@@ -75,8 +75,12 @@ export class PostServiceImpl implements PostService {
     return this.repository.getCommentsFromPost(postId, options, userId)
   }
 
-  async getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
-    return await this.repository.getAllPublicAndFollowedUsersPostByDatePaginated(userId, options)
+  getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
+    return this.repository.getAllPublicAndFollowedUsersPostByDatePaginated(userId, options)
+  }
+
+  getLatestPostsOfFollowedUsers(userId: string, options: CursorPagination) : Promise<ExtendedPostDTO[]> {
+    return this.repository.getAllFollowedUserPostsByDatePaginated(userId, options)
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {

@@ -7,6 +7,7 @@ export interface PostRepository {
   
   getAllByDatePaginated: (options: CursorPagination) => Promise<PostDTO[]>
   getAllPublicAndFollowedUsersPostByDatePaginated(userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]>
+  getAllFollowedUserPostsByDatePaginated(userId : string, options: CursorPagination): Promise<ExtendedPostDTO[]>
 
   delete: (postId: string) => Promise<void>
   getById: (postId: string, userId?: string) => Promise<ExtendedPostDTO | null>

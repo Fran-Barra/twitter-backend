@@ -40,6 +40,15 @@ postRouter.get('/', async (req: Request, res: Response) => {
   return res.status(HttpStatus.OK).json(posts)
 })
 
+postRouter.get('/following', async (req: Request, res: Response) => {
+  const { userId } = res.locals.context
+  const { limit, before, after } = req.query as Record<string, string>  
+
+  const posts = await service.getLatestPostsOfFollowedUsers(userId, {limit: Number(limit), before: before, after: after})
+
+  return res.status(HttpStatus.OK).json(posts)
+})
+
 /**
  * @swagger
  * /api/post/{postId}:
