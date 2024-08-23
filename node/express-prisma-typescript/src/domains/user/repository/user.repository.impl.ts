@@ -39,17 +39,31 @@ export class UserRepositoryImpl implements UserRepository {
   async getRecommendedUsersPaginated (userId: string, options: OffsetPagination): Promise<UserViewDTO[]> {
     const users = await this.db.user.findMany({
       where: {
-        followers: {
-          some: {
-            follower: {
-              followers: {
-                some: {
-                  followerId: userId
-                }
+        AND: [
+          {
+            followers: {
+              some: {
+                follower: {
+                  followers: {
+                    some: {
+                      followerId: userId,
+                      deletedAt: null
+                    }
+                  }
+                },
+                deletedAt: null
+              }
+            }
+          },
+          {
+            followers: {
+              none: {
+                followerId: userId,
+                deletedAt: null
               }
             }
           }
-        }
+        ]
       },
       take: options.limit ? options.limit : undefined,
       skip: options.skip ? options.skip : undefined,
