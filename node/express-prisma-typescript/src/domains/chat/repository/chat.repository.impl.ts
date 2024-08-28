@@ -48,7 +48,8 @@ export class ChatRepositoryImpl implements ChatRepository{
                 }
             }
         })
-        if (chat === null) return null
+        
+        if (!chat) return null        
         return this.mapChatToChatDTO(chat)
         } catch (err) {
             //TODO: should validate the uuid with a decorator
