@@ -1,7 +1,7 @@
 {
     "$schema": "https://railway.app/railway.schema.json",
     "build": {
-      "buildCommand": "cd ./node/express-prisma-typescript/ && npm run build",
+      "buildCommand": "cd ./node/express-prisma-typescript/ && npm run build"
     },
     "deploy": {
       "runtime": "V2",
