@@ -57,16 +57,13 @@ export function ErrorHandling (error: Error, req: Request, res: Response, next: 
 
 export function ErrorHandlingSocket (error: Error | unknown, socket: Socket) : void {
   if (error instanceof Error) {
-    if (error instanceof HttpException) {
+    Logger.error(error.message)
+    socket.emit('system error', {message: error.message, code: HttpStatus.INTERNAL_SERVER_ERROR})
+  } else if (error instanceof HttpException) {
       if (error.code === HttpStatus.INTERNAL_SERVER_ERROR) {
         Logger.error(error.message)
       }      
       socket.emit('system error', {message: error.message, code: error.code, errors: error.error})
-      return
-    }
-    Logger.error(error.message)
-    socket.emit('system error', {message: error.message, code: HttpStatus.INTERNAL_SERVER_ERROR})
-    return  
-  }
-  socket.emit('system error', {message: 'unknown error happened', code: HttpStatus.INTERNAL_SERVER_ERROR})
+  } else
+    socket.emit('system error', {message: 'unknown error happened', code: HttpStatus.INTERNAL_SERVER_ERROR})
 }

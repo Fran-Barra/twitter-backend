@@ -9,9 +9,11 @@ export class SocketService {
 
     onConnectionStarted(socket: Socket) : void {
         try {            
+            console.log("Connection started");
+            
             socket.on("message", (message: string, ...args) => this.onMessage(socket, message))
     
-            socket.on("join chat", (chatId: string, ...args) => this.onJoinChat(socket, chatId))
+            socket.on("join chat", (chatId: string, pagination?: CursorPagination, ...args) => this.onJoinChat(socket, chatId, pagination))
             socket.on("left chat", (...args)=>this.onLeftChat(socket))
             //TODO: generic system event
             socket.on("system get messages", (pagination: CursorPagination, ...args) => this.getChatMessages(socket, pagination))
@@ -29,26 +31,33 @@ export class SocketService {
     }
     
     private async onMessage(socket: Socket, message: string) : Promise<void> {
-        try {
-            const chatId = Array.from(socket.rooms).find(roomId => roomId !== socket.id);
-            if (!chatId) throw new ForbiddenException();
+        try {            
+            const chatId = Array.from(socket.rooms).find(roomId => roomId !== socket.id);            
+            if (!chatId) {
+                console.log("message was not send");
+                throw new ForbiddenException();
+            }
             const userId = socket.data.context.userId
-    
     
             const messageDTO = await this.chatService.sendMessage(userId, chatId, message)
             socket.to(chatId).emit("message", messageDTO)
+            console.log("message was send");
+            
         } catch (err) {
             ErrorHandlingSocket(err, socket)
         }
     }
     
-    private async onJoinChat(socket: Socket, chatId: string) : Promise<void> {
+    private async onJoinChat(socket: Socket, chatId: string, pagination?: CursorPagination) : Promise<void> {
         try {
             const isParticipantOrOwner = await this.chatService.isParticipantOrOwner(socket.data.context.userId, chatId)
+            console.log(`is participant: ${isParticipantOrOwner}`);
+            
             if (!isParticipantOrOwner) throw new ForbiddenException()
             this.onLeftChat(socket)
             
             socket.join(chatId)
+            this.getChatMessages(socket, pagination ?? {limit: 10})
         } catch (err) {
             ErrorHandlingSocket(err, socket)
         }
@@ -59,7 +68,10 @@ export class SocketService {
             console.log("in rooms:" + socket.rooms.size);
             
             const chatId = Array.from(socket.rooms).find(roomId => roomId !== socket.id);
-            if (!chatId) throw new ValidationException([new String("not in chat")]);
+            if (!chatId) {
+                console.log("NOT IN CHAT");
+                throw new ValidationException([new String("not in chat")]);
+            }
     
             const messages = await this.chatService.getChatMessages(socket.data.context.userId, chatId, pagination)
             socket.emit("system get messages", messages)

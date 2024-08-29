@@ -46,7 +46,13 @@ app.use(ErrorHandling)
 
 const httpServer = createServer(app)
 //TODO: use specific path
-const io = new Server(httpServer)
+const io = new Server(httpServer, {
+  cors: {
+    origin: Constants.CORS_WHITELIST,
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+})
 
 io.use(socketAuth)
 io.on("connection", socketService.onConnectionStarted.bind(socketService))

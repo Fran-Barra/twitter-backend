@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken'
+import jwt, { JwtPayload, VerifyErrors } from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
 import { Request, Response } from 'express'
 import { Constants } from '@utils'
@@ -34,22 +34,21 @@ export const checkPassword = async (password: string, hash: string): Promise<boo
   return await bcrypt.compare(password, hash)
 }
 
-export const socketAuth = (socket: Socket, next: () => void) : void => {
-  try {
-    // Get the token from the authorization header    
-    const [bearer, token] = (socket.handshake.headers.authorization)?.split(' ') ?? []
+export const socketAuth = (socket: Socket, next: (err? : any) => void) : void => {  
+  try {    
+    const [bearer, token] = (socket.handshake.auth.token)?.split(' ') ?? []    
 
     // Verify that the Authorization header has the expected shape
     if (!bearer || !token || bearer !== 'Bearer') throw new UnauthorizedException('MISSING_TOKEN')
   
     // Verify that the token is valid
-    jwt.verify(token, Constants.TOKEN_SECRET, (err, context) => {
+    jwt.verify(token, Constants.TOKEN_SECRET, (err: VerifyErrors | null, context : string | JwtPayload | undefined) => {
       if (err) throw new UnauthorizedException('INVALID_TOKEN')
       socket.data.context = context
       next()
     })
   } catch (err) {
     ErrorHandlingSocket(err, socket)
-    socket.disconnect()
+    next(err)
   }
 }
