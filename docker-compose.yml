@@ -16,9 +16,10 @@ services:
       interval: 1s
       timeout: 1s
       retries: 15
+
   server:
     build:
-      context: .
+      context: ./node/express-prisma-typescript
       dockerfile: Dockerfile
       target: dev
     container_name: server
@@ -31,13 +32,14 @@ services:
       - .envrc
     ports:
       - '8080:8080'
-    volumes: # if there's any new files containing sources, add them as volumes
-      - ./src:/app/src
-      - ./prisma:/app/prisma
+    volumes:
+      - ./node/express-prisma-typescript/src:/app/src
+      - ./node/express-prisma-typescript/prisma:/app/prisma
     depends_on:
       db:
         condition: service_healthy
     links:
       - db
+
 volumes:
   db-data:
