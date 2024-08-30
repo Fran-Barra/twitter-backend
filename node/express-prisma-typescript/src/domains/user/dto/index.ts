@@ -33,18 +33,31 @@ export class UserDTO {
   private: boolean
 }
 
-//TODO: this class is included in ExtendedPostDTO, why is it exposing the password?
 export class ExtendedUserDTO extends UserDTO {
   constructor (user: ExtendedUserDTO) {
     super(user)
     this.email = user.email
     this.name = user.name
-    this.password = user.password
+    this.profilePicture = user.profilePicture
   }
 
   email!: string
   username!: string
-  password!: string
+  profilePicture?: string | null
+}
+
+export class UserWithPsw {
+  constructor (user : UserWithPsw) {
+    this.id = user.id;
+    this.email = user.email;
+    this.username = user.username;
+    this.password = user.password
+  }
+
+  id!: string;
+  email!: string;
+  username!: string;
+  password!: string;
 }
 
 

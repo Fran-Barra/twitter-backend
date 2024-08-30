@@ -86,6 +86,11 @@ export class PostServiceImpl implements PostService {
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
     const authorized = await this.authToSeeUserPost.authorized(userId, authorId)
     if (authorized !== true) throw new NotFoundException('post')
-    return await this.repository.getByAuthorId(authorId, userId)
+    const userProfilePicture = this.imageService.generateLinkForProfilePicture(userId)
+    return this.repository.getByAuthorId(authorId, userId)
+      .then(posts=>{
+        posts.forEach(p=>p.author.profilePicture = userProfilePicture)
+        return posts
+      })
   }
 }

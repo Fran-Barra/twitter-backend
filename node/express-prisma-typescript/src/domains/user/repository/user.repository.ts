@@ -1,6 +1,6 @@
 import { SignupInputDTO } from '@domains/auth/dto'
 import { CursorPagination, OffsetPagination } from '@types'
-import { ExtendedUserDTO, UserDTO, UserViewDTO } from '../dto'
+import { ExtendedUserDTO, UserDTO, UserViewDTO, UserWithPsw } from '../dto'
 
 export interface UserRepository {
   create: (data: SignupInputDTO) => Promise<UserDTO>
@@ -8,5 +8,5 @@ export interface UserRepository {
   getRecommendedUsersPaginated: (userId: string, options: OffsetPagination) => Promise<UserViewDTO[]>
   getUsersByUsername: (userId: string, username: string, options: CursorPagination) => Promise<UserViewDTO[]>
   getById: (userId: string) => Promise<UserViewDTO | null>
-  getByEmailOrUsername: (email?: string, username?: string) => Promise<ExtendedUserDTO | null>
+  getByEmailOrUsername: (email?: string, username?: string) => Promise<UserWithPsw | null>
 }

@@ -36,6 +36,10 @@ export class AWSImageService implements ImageService {
         return await getSignedUrl(this.client, command)
     }
 
+    generateLinkForProfilePicture(userId: string) : string {
+        return this.buildUrl(`${this.profilePictures}/${userId}/profile.jpeg`)
+    }
+
     async generateLinksForPostImages(postId: string, amount: number) : Promise<PostLinksAndReadLinks> {
         const links = new Array(amount);
         const post = new Array(amount);
