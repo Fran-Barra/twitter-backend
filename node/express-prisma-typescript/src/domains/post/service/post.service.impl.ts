@@ -72,15 +72,20 @@ export class PostServiceImpl implements PostService {
     const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
     if (authorized !== true) throw new NotFoundException('post')
 
-    return this.repository.getCommentsFromPost(postId, options, userId)
+    return this.repository.getCommentsFromPost(postId, options, userId).then(r=>{
+      r.forEach(p=>p.author.profilePicture = this.imageService.generateLinkForProfilePicture(p.author.id))
+      return r
+    })
   }
 
   getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
     return this.repository.getAllPublicAndFollowedUsersPostByDatePaginated(userId, options)
+      .then(this.addProfilePictures.bind(this))
   }
 
   getLatestPostsOfFollowedUsers(userId: string, options: CursorPagination) : Promise<ExtendedPostDTO[]> {
     return this.repository.getAllFollowedUserPostsByDatePaginated(userId, options)
+      .then(this.addProfilePictures.bind(this))
   }
 
   async getPostsByAuthor (userId: any, authorId: string): Promise<ExtendedPostDTO[]> {
@@ -92,5 +97,10 @@ export class PostServiceImpl implements PostService {
         posts.forEach(p=>p.author.profilePicture = userProfilePicture)
         return posts
       })
+  }
+
+  private addProfilePictures(posts: ExtendedPostDTO[]) : ExtendedPostDTO[] {
+    posts.forEach(p=>p.author.profilePicture = this.imageService.generateLinkForProfilePicture(p.author.id))
+    return posts
   }
 }
