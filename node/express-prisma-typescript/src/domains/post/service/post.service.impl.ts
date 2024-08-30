@@ -72,10 +72,8 @@ export class PostServiceImpl implements PostService {
     const authorized = await this.authToSeeUserPost.authorized(userId, post.authorId)
     if (authorized !== true) throw new NotFoundException('post')
 
-    return this.repository.getCommentsFromPost(postId, options, userId).then(r=>{
-      r.forEach(p=>p.author.profilePicture = this.imageService.generateLinkForProfilePicture(p.author.id))
-      return r
-    })
+    return this.repository.getCommentsFromPost(postId, options, userId)
+      .then(this.addProfilePictures.bind(this))
   }
 
   getLatestPosts (userId: string, options: CursorPagination): Promise<ExtendedPostDTO[]> {
