@@ -27,8 +27,8 @@ export class UserServiceImpl implements UserService {
     await this.repository.delete(userId)
   }
 
-  async getUsersByName(username: string, options: CursorPagination): Promise<UserViewDTO[]> {
-    const users = await this.repository.getUsersByUsername(username, options)    
+  async getUsersByName(userId: string, username: string, options: CursorPagination): Promise<UserViewDTO[]> {
+    const users = await this.repository.getUsersByUsername(userId, username, options)    
     return Promise.all(
       users.map(this.setProfilePictureLinkToUserDTO.bind(this))
     )

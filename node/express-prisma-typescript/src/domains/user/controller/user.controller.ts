@@ -198,8 +198,9 @@ userRouter.post('/profile-picture', async (req: Request, res: Response) => {
 userRouter.get('/by_username/:username', async (req: Request, res: Response) => {
   const { username } = req.params
   const { limit, before, after } = req.query as Record<string, string>
+  const { userId } = res.locals.context
 
-  const users = await service.getUsersByName(username, {limit: Number(limit), before: before, after: after})
+  const users = await service.getUsersByName(userId, username, {limit: Number(limit), before: before, after: after})
 
   return res.status(HttpStatus.OK).json(users)
 })

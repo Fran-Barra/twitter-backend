@@ -97,9 +97,12 @@ export class UserRepositoryImpl implements UserRepository {
     return user ? new ExtendedUserDTO(user) : null
   }
 
-  async getUsersByUsername(username: string, options: CursorPagination): Promise<UserViewDTO[]> {
+  async getUsersByUsername(userId: string, username: string, options: CursorPagination): Promise<UserViewDTO[]> {
     const users = await this.db.user.findMany({
       where: {
+        NOT: {
+          id: userId
+        },
         username: {
           contains: username,
           mode: 'insensitive'

@@ -5,5 +5,5 @@ export interface UserService {
   deleteUser: (userId: any) => Promise<void>
   getUser: (userId: any) => Promise<UserViewDTO>
   getUserRecommendations: (userId: any, options: OffsetPagination) => Promise<UserViewDTO[]>
-  getUsersByName: (username: string, options: CursorPagination) => Promise<UserViewDTO[]>
+  getUsersByName: (userId: string, username: string, options: CursorPagination) => Promise<UserViewDTO[]>
 }
