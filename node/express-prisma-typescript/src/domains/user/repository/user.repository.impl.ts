@@ -41,6 +41,11 @@ export class UserRepositoryImpl implements UserRepository {
       where: {
         AND: [
           {
+            NOT: {
+              id: userId
+            }
+          },
+          {
             followers: {
               some: {
                 follower: {
@@ -52,7 +57,7 @@ export class UserRepositoryImpl implements UserRepository {
                   }
                 },
                 deletedAt: null
-              }
+              },
             }
           },
           {

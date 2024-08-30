@@ -16,6 +16,7 @@ export class ChatServiceImpl implements ChatService {
     async createChat(ownerId: string, chatName: string, participantsId: string[]) : Promise<ChatDTO> {
         if (!await this.authToAddParticipant.authorizeManyAtCreation(ownerId, participantsId)) 
             throw new ForbiddenException()
+        //owner is being save in participants userOnChat, don't allow that
         return this.chatRepository.createChat(ownerId, chatName, participantsId)
     }
 
